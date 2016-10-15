@@ -13,3 +13,6 @@ For this project, our goals are:
 We'll use University of California Irvine's sample data sets to test our algorithms:
  - [Mushroom's data set](http://archive.ics.uci.edu/ml/datasets/Mushroom)
  - [Adult's data set](http://archive.ics.uci.edu/ml/datasets/Adult)
+
+
+*\<\> with ♥ in ETSE, UAB by ccebrecos, davidlj and joel.sanz*
