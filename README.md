@@ -15,4 +15,4 @@ We'll use University of California Irvine's sample data sets to test our algorit
  - [Adult's data set](http://archive.ics.uci.edu/ml/datasets/Adult)
 
 
-*\<\> with ♥ in ETSE, UAB by ccebrecos, davidlj and joel.sanz*
+*\<\> with ♥ in ETSE, UAB by ccebrecos, davidlj &amp; joel.sanz*
