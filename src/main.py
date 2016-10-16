@@ -33,7 +33,7 @@ if __name__ == "__main__":
 	# Welcome
 	LOGGER.info("Welcome to the Decision Trees software")
 	# Read dataset file
-	reader = Reader(os.path.join(DATASET_PATH,args.dataset,args.dataset+DATASET_EXT))
+	reader = DataReader(os.path.join(DATASET_PATH,args.dataset,args.dataset+DATASET_EXT))
 	try:
 		reader.read()
 	except Exception as e:

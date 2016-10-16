@@ -8,7 +8,7 @@ class Dataset(object):
 								class1: [attr1_count,attr2_count,...]
 	@attr 	_isParsed 		true if already parsed
 	"""
-	__slots__ = ["_data","_classes","_classes_cnt","_isParsed"]
+	__slots__ = ["_data","_classes","_classes_names","_classes_cnt","_isParsed"]
 
 	"""
 	Initializes a dataset given the matrix of examples
@@ -18,6 +18,7 @@ class Dataset(object):
 	def __init__(self,data):
 		self._data = data
 		self._isParsed = False
+		self._classes_names=[]
 
 	"""
 	Parses the dataset to find the possible classes and their attributes
