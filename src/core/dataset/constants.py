@@ -18,4 +18,4 @@ DATASET_SEP = ','
 """
 Dataset extension for attributes files
 """
-DATASET_ATTR = ".attr"
+ATTRSET_EXT = ".attr"
