@@ -47,7 +47,7 @@ class Dataset(object):
 		self._attrSet = attrSet
 
 	def __str__(self):
-		txt =  " DATASET Specifications\n"
+		txt =  "%s Specifications\n"%self.__class__.__name__
 		txt += "------------------------------------------------------------\n"
 		txt += "STAT:    %s\n"%("parsed" if self._isParsed else "init")
 		txt += "SIZE:    %d x %d\n"%(self._rows,self._cols)
@@ -58,6 +58,7 @@ class Dataset(object):
 		for class_attr in self._classes:
 			txt += " [%02d]: %s\n"%(i,class_attr)
 			i+=1
+		txt += "------------------------------------------------------------\n"
 		return txt
 
 	"""
@@ -84,11 +85,31 @@ class Dataset(object):
 	def getCols(self):
 		return self._cols
 
+	"""
+	Returns the dataset information as a matrix of rows and cols containing in
+	each row an example to be classified / validated with all its attributes
+	defined
+
+	@return 	dataset information
+	"""
 	def getData(self):
 		return self._data
 
+	"""
+	Returns the classes that are present in the dataset in the following format
+		[[class1_attrib1,class1_attrib2,...],...]
+	The classes attributes contain exactly what they had when they were loaded
+
+	@return 	classes information
+	"""
 	def getClasses(self):
 		return self._classes
 
+	"""
+	Returns the classes and attributes information that are in a human language
+	so that we can print useful information
+
+	@return 	attribute set
+	"""
 	def getAttributeSet(self):
 		return self._attrSet

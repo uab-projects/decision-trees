@@ -19,8 +19,3 @@ class TrainingSet(Dataset):
 			np.array([self._classes[j].index(self._data[i][j])
 				for j in range(self._cols)],dtype=np.uint16)
 					for i in range(self._rows)])
-
-	def __str__(self):
-		txt = super().__str__()
-		txt += "BUT IT'S A TRAINING SET :)\n"
-		return txt

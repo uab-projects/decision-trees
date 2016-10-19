@@ -1,15 +1,32 @@
+# Libraries
 from abc import ABCMeta,abstractmethod,abstractproperty
 from anytree import *
 import numpy as np
 import random
 
+"""
+Abstract algorithm that generates a decision tree based on a classification
+criteria to try to classify according a determined variable target new examles
+given a training set
+
+Base for the ID3, C4.5 algorithms
+"""
 class TreeGrowingAlgorithm(object):
 	__metaclass__ = ABCMeta
 	"""
+	@attr 	_target 			classifier variable
+	@attr 	_trainingSet 		training set object to use to get data from
+	@attr 	_trainingData 		training information obtained from training set
+	@attr 	_trainingClasses 	correspondence between indexes and classes
+	@attr	_isRunning 			controls the algorithm is not run twice
 	"""
-	__slots__=["_target","_trainingSet","_trainingData","_trainingClasses","_isRunning"]
+	__slots__=["_target","_trainingSet","_trainingData","_trainingClasses",
+	"_isRunning"]
 
 	"""
+	Initializes the tree growing algorithm given some training data
+
+	@param 	trainingSet 		training data object
 	"""
 	def __init__(self, trainingSet):
 		self._target = None
@@ -18,11 +35,18 @@ class TreeGrowingAlgorithm(object):
 		self._trainingData = trainingSet.getData()
 		self._isRunning = False
 
+	"""
+	Starts the algorithm that generates a decision tree. Returns the tree when
+	the algorithm has finished.
+
+	@param 	target 				variable to classify
+	"""
 	def __call__(self, target):
 		# not running
 		assert not self._isRunning, "the algorithm is alredy running"
 		self._isRunning = True
-		# generate attributes
+		# generate attributes and trainingSet
+		trainingSet = np.ones(self._trainingSet.getRows(), dtype=bool)
 		attributeSet = [i for i in range(self._trainingSet.getCols())]
 		# check correct target
 		assert target in attributeSet, """target attribute is not defined in
@@ -30,8 +54,7 @@ class TreeGrowingAlgorithm(object):
 		self._target = target
 		attributeSet.remove(target)
 		# classify
-		tree = self._treeGrowing(np.ones(self._trainingSet.getRows(),
-			dtype=bool), attributeSet)
+		tree = self._treeGrowing(trainingSet, attributeSet)
 		self._isRunning = False
 		return tree.children[0]
 
@@ -46,10 +69,10 @@ class TreeGrowingAlgorithm(object):
 	@return tree
 	"""
 	def _treeGrowing(self, trainingSet, attributeSet, parent=Node("root")):
-		# should be something diferent, specified like that on notes
+		# should be something different, specified like that on notes
 		if self._stopCriterion(trainingSet, attributeSet):
 			# fulles
-			Node("Solution %d"%(random.randrange(2)),parent)
+			Node("%s"%("edible" if random.randrange(2) else "poisonous"),parent)
 		else:
 			attr_index = self._splitCriterion(trainingSet, attributeSet)
 			attributeSet.remove(attr_index)
@@ -103,9 +126,10 @@ class TreeGrowingAlgorithm(object):
 		pass
 
 	"""
-	<Some description in here>
+	Determines if the tree must stop growing and put a leaf or not, based on
+	the current training set and attribute set remaining
 
-	@return True if something, False if not something
+	@return 	True if stop
 	"""
 	@abstractmethod
 	def _stopCriterion(self, trainingSet, attributeSet):
@@ -132,9 +156,13 @@ class TreeGrowingAlgorithm(object):
 	def _H(self, trainingSet):
 		pass
 
+"""
+Dummy implementation of the tree growing algorithm. Generates a decision tree
+with the simple criteria of picking the first class as the classifier
+"""
 class BasicTreeGrowingAlgorithm(TreeGrowingAlgorithm):
 	def _stopCriterion(self, trainingSet, attributeSet):
-		if not len(attributeSet):
+		if not len(attributeSet) or not np.sum(trainingSet):
 			return True
 		else:
 			pass

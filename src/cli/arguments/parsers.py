@@ -40,6 +40,34 @@ DEFAULT_PARSER.add_argument("--show-dataset",
 	const=True,
 	default=SHOW_DATASET_DEFAULT
 )
+DEFAULT_PARSER.add_argument("--show-tree",
+	metavar="true|false",
+	action="store",
+	nargs="?",
+	help="""enables or disables printing the decision tree to screen (%s
+	by default)"""%("enabled" if SHOW_TREE_DEFAULT else "disabled"),
+	type=evalTF,
+	const=True,
+	default=SHOW_TREE_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-a","--algorithm",
+	metavar="alg",
+	action="store",
+	help="""sets the algorithm to use to classify the training set into a
+	decision tree. Default is %s"""%ALGORITHM_DEFAULT,
+	type=str,
+	choices=ALGORITHMS,
+	default=ALGORITHM_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-c","--classifier",
+	metavar="variable",
+	action="store",
+	help="""sets the classifier variable to use to generate the decision tree.
+	It has to be a column from the dataset. By default, we use the column %d
+	of the dataset)"""%TARGET_DEFAULT,
+	type=int,
+	default=TARGET_DEFAULT
+)
 DEFAULT_PARSER.add_argument("-t",
 	action="count",
 	help="""records the algorithm's computation time and shows them. You can

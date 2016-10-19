@@ -8,15 +8,72 @@ from core.dataset.dataset import *
 from core.dataset.constants import *
 from core.dataset.trainingset import *
 from core.algorithms.treegrowing import BasicTreeGrowingAlgorithm
+from core.algorithms.ID3 import ID3Algorithm
 import logging
 import os
 import platform
 from anytree import *
+import sys
 
 # constants
 LOGGER = logging.getLogger(__name__)
 
+# variables
+"""
+Arguments namespace
+"""
+args = None
+
+"""
+Training set object to use to generate a decision tree
+"""
+trainingSet = None
+
+"""
+Algorithm to use to generate a decision tree
+"""
+algorithm = None
+
 # functions
+"""
+Reads the dataset specified in the arguments and returns the reader used with
+the data already loaded. If fails, exits the application
+
+@return 	reader object
+"""
+def selectDataset():
+	dataSet_file = os.path.join(
+		DATASET_PATH,
+		args.dataset,
+		args.dataset+DATASET_EXT
+	)
+	reader = DataReader(dataSet_file)
+	try:
+		reader.read()
+	except Exception as e:
+		LOGGER.critical("Unable to read dataset file %s: %s",
+			dataSet_file,str(e))
+		sys.exit(1)
+	return reader
+
+"""
+Selects from the arguments the algorithm to use, and creates an object with
+that algorithm
+
+@return 	algorithm object
+"""
+def selectAlgorithm():
+	print(type(args.algorithm))
+	if args.algorithm == "id3":
+		algorithm = ID3Algorithm(trainingSet)
+	elif args.algorithm == "dummy":
+		algorithm = BasicTreeGrowingAlgorithm(trainingSet)
+	else:
+		LOGGER.critical("""Algorithm %s does not exist or is not yet
+		implemented""",args.algorithm)
+		sys.exit(1)
+	return algorithm
+
 """
 Takes the system arguments vector and tries to parse the arguments in it given
 the argument parser specified and returns the namespace generated
@@ -36,19 +93,15 @@ if __name__ == "__main__":
 	# Welcome
 	LOGGER.info("Welcome to the Decision Trees software")
 	# Read dataset file
-	reader = DataReader(os.path.join(DATASET_PATH,args.dataset,args.dataset+DATASET_EXT))
-	try:
-		reader.read()
-	except Exception as e:
-		LOGGER.error("Unable to read dataset file: %s",str(e))
+	reader = selectDataset()
 	# Create training set from file
-	trainingset = TrainingSet(reader.getData())
-	# Parse dataset
+	trainingSet = TrainingSet(reader.getData())
+	# Show it
 	if args.show_dataset:
-		LOGGER.info("Dataset information:\n%s",trainingset)
+		LOGGER.info(trainingSet)
 	# Create algorithm
-	alg = BasicTreeGrowingAlgorithm(trainingset)
-	tree = alg(0)
+	algorithm = selectAlgorithm()
+	tree = algorithm(args.classifier)
 	# Load attribute set
 	attribs = AttrReader(os.path.join(DATASET_PATH,args.dataset,args.dataset+ATTRSET_EXT))
 	try:
@@ -56,11 +109,14 @@ if __name__ == "__main__":
 		attribs.parse()
 	except Exception as e:
 		LOGGER.warning("Unable to adquire attributes for the dataset: %s",e)
+	# Apply attributes
 	if(attribs.isParsed()):
-		trainingset.applyAttributes(attribs.getAttr())
+		trainingSet.applyAttributes(attribs.getAttr())
 		try:
-			alg.translate(tree)
+			algorithm.translate(tree)
 		except Exception as e:
 			LOGGER.error("Tree was not translated: %s",e)
-	for pre, fill, node in RenderTree(tree):
-		print("%s%s" % (pre, node.name))
+	# Print tree
+	if args.show_tree:
+		for pre, fill, node in RenderTree(tree):
+			print("%s%s" % (pre, node.name))
