@@ -41,3 +41,9 @@ TARGET_DEFAULT = 0
 Show timers
 """
 TIMERS_DEFAULT = 0
+
+"""
+Default log level
+"""
+LOGS = ["debug","info","warning","error","critical"]
+LOG_DEFAULT = LOGS[1]

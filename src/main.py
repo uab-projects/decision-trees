@@ -63,7 +63,6 @@ that algorithm
 @return 	algorithm object
 """
 def selectAlgorithm():
-	print(type(args.algorithm))
 	if args.algorithm == "id3":
 		algorithm = ID3Algorithm(trainingSet)
 	elif args.algorithm == "dummy":
@@ -90,6 +89,18 @@ if __name__ == "__main__":
 	if platform.system() == "Windows":
 		os.system("chcp 65001")
 	args = parseArguments(DEFAULT_PARSER)
+	#Switching log level
+	root_logger = logging.getLogger()
+	if args.log_level=="debug":
+		root_logger.setLevel(logging.DEBUG)
+	elif args.log_level=="info":
+		root_logger.setLevel(logging.INFO)
+	elif args.log_level=="warning":
+		root_logger.setLevel(logging.WARNING)
+	elif args.log_level=="error":
+		root_logger.setLevel(logging.ERROR)
+	elif args.log_level=="critical":
+		root_logger.setLevel(logging.CRITICAL)
 	# Welcome
 	LOGGER.info("Welcome to the Decision Trees software")
 	# Read dataset file

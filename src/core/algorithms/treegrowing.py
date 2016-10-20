@@ -3,6 +3,9 @@ from abc import ABCMeta,abstractmethod,abstractproperty
 from anytree import *
 import numpy as np
 import random
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 """
 Abstract algorithm that generates a decision tree based on a classification
@@ -54,6 +57,7 @@ class TreeGrowingAlgorithm(object):
 		self._target = target
 		attributeSet.remove(target)
 		# classify
+		LOGGER.debug("Starting to generate decision tree")
 		tree = self._treeGrowing(trainingSet, attributeSet)
 		self._isRunning = False
 		return tree.children[0]
@@ -68,22 +72,50 @@ class TreeGrowingAlgorithm(object):
 
 	@return tree
 	"""
-	def _treeGrowing(self, trainingSet, attributeSet, parent=Node("root")):
+	def _treeGrowing(self, trainingSet, attributeSet, parent=Node("root"),
+	 	depth=0):
 		# should be something different, specified like that on notes
+		LOGGER.debug("-> treeGrowing Iteration (depth=%d)",depth)
+		LOGGER.debug("   Parent is: %s",str(parent.name))
 		if self._stopCriterion(trainingSet, attributeSet):
 			# fulles
-			Node("%s"%("edible" if random.randrange(2) else "poisonous"),parent)
+			LOGGER.debug("--> Leaf reached.")
+			leaf = self._selectLeaf(trainingSet)
+			LOGGER.debug("    Leaf has been tagged as %s",self._trainingClasses[self._target][leaf])
+			Node(self._trainingClasses[self._target][leaf],parent)
 		else:
+			LOGGER.debug("--> Splitting tree")
 			attr_index = self._splitCriterion(trainingSet, attributeSet)
 			attributeSet.remove(attr_index)
 			attr_node = Node(attr_index,parent)
+			LOGGER.debug("---> Split criterion: %d",attr_index)
 			# temporary, just an idea -- born to help, not to work
 			for attr_class in range(len(self._trainingClasses[attr_index])):
 				# cut training set
-				trainingSet *= np.where(self._trainingData[:,attr_index] == attr_class,True,False)
+				new_trainingSet = trainingSet * self._filterByAttributeValue(attr_index,attr_class)
+				LOGGER.debug("----> Created node for %s",self._trainingClasses[attr_index][attr_class])
+				LOGGER.debug("      Examples:     %s (in, out)",str(np.bincount(new_trainingSet,minlength=2)[::-1]))
+				LOGGER.debug("      Distribution: %s (%s)",self._countTargetClasses(new_trainingSet),self._trainingClasses[self._target])
 				# Recursive call
-				self._treeGrowing(trainingSet, attributeSet, Node(attr_class,attr_node))
+				if(np.sum(new_trainingSet)):
+					self._treeGrowing(new_trainingSet, attributeSet, Node(attr_class,attr_node),depth+1)
 		return parent
+
+	"""
+
+	"""
+	def _filterByAttributeValue(self, attr, attrValue):
+		return np.where(self._trainingData[:,attr] == attrValue,True,False)
+
+	"""
+	"""
+	def _countTargetClasses(self, trainingSet):
+		return np.bincount(self._trainingData[:,self._target][trainingSet],minlength=len(self._trainingClasses[self._target]))
+
+	"""
+	"""
+	def _selectLeaf(self, trainingSet):
+		return self._countTargetClasses(trainingSet).argmax()
 
 	"""
 	Applies attributes (if any) from the training set in order to transform a
@@ -98,7 +130,7 @@ class TreeGrowingAlgorithm(object):
 			return None
 		def _translate(node,depth=0):
 			if not node.children:
-				return
+				node.name = attrs[self._target][1][node.name]
 			else:
 				# translate my children
 				for child in node.children:
@@ -162,10 +194,14 @@ with the simple criteria of picking the first class as the classifier
 """
 class BasicTreeGrowingAlgorithm(TreeGrowingAlgorithm):
 	def _stopCriterion(self, trainingSet, attributeSet):
-		if not len(attributeSet) or not np.sum(trainingSet):
+		# Not attributes remaining
+		if not len(attributeSet):
 			return True
-		else:
-			pass
+		# All elements belonging to a unique class
+		if np.count_nonzero(self._countTargetClasses(trainingSet)) == 1:
+			return True
+
+		#Continue classifying
 		return False
 	def _splitCriterion(self, trainingSet, attributeSet):
 		return attributeSet[0]

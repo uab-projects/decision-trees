@@ -75,3 +75,11 @@ DEFAULT_PARSER.add_argument("-t",
 	level is %d"""%TIMERS_DEFAULT,
 	default = TIMERS_DEFAULT
 )
+DEFAULT_PARSER.add_argument("-l","--log-level",
+	metavar="level",
+	action="store",
+	help="",
+	type=str,
+	choices=LOGS,
+	default=LOG_DEFAULT
+)
