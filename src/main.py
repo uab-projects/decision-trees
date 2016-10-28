@@ -3,12 +3,14 @@
 # libraries
 import core.log
 from cli.arguments.parsers import DEFAULT_PARSER
+from cli.arguments.constants import *
 from core.dataset.reader import DataReader,AttrReader
 from core.dataset.dataset import *
 from core.dataset.constants import *
 from core.dataset.trainingset import *
 from core.algorithms.treegrowing import BasicTreeGrowingAlgorithm
 from core.algorithms.ID3 import ID3Algorithm
+from core.algorithms.C45 import C45Algorithm
 import logging
 import os
 import platform
@@ -57,6 +59,22 @@ def selectDataset():
 	return reader
 
 """
+Returns the user selected percentage of samples to sent to the training set
+or either exits the software if invalid
+
+@return 	percentage to send to training set
+"""
+def getTrainingPerentage():
+	pc = args.percent
+	if pc < 0. or pc > 1.:
+		LOGGER.critical("""Training set percentage must be a number between 0
+		and 1""")
+		sys.exit(1)
+	return pc
+
+
+
+"""
 Selects from the arguments the algorithm to use, and creates an object with
 that algorithm
 
@@ -65,6 +83,8 @@ that algorithm
 def selectAlgorithm():
 	if args.algorithm == "id3":
 		algorithm = ID3Algorithm(trainingSet)
+	elif args.algorithm == "c4.5":
+		algorithm = C45Algorithm(trainingSet)
 	elif args.algorithm == "dummy":
 		algorithm = BasicTreeGrowingAlgorithm(trainingSet)
 	else:
@@ -91,20 +111,15 @@ if __name__ == "__main__":
 	args = parseArguments(DEFAULT_PARSER)
 	#Switching log level
 	root_logger = logging.getLogger()
-	if args.log_level=="debug":
-		root_logger.setLevel(logging.DEBUG)
-	elif args.log_level=="info":
-		root_logger.setLevel(logging.INFO)
-	elif args.log_level=="warning":
-		root_logger.setLevel(logging.WARNING)
-	elif args.log_level=="error":
-		root_logger.setLevel(logging.ERROR)
-	elif args.log_level=="critical":
-		root_logger.setLevel(logging.CRITICAL)
+	root_logger.setLevel(LOGS_LEVELS[LOGS.index(args.log_level)])
 	# Welcome
 	LOGGER.info("Welcome to the Decision Trees software")
 	# Read dataset file
 	reader = selectDataset()
+	# Percentage
+	trainingSet_pc = getTrainingPerentage()
+	LOGGER.info("Specified percentage to sent to training set is %f",
+		trainingSet_pc)
 	# Create training set from file
 	trainingSet = TrainingSet(reader.getData())
 	# Show it

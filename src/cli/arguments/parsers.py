@@ -78,8 +78,19 @@ DEFAULT_PARSER.add_argument("-t",
 DEFAULT_PARSER.add_argument("-l","--log-level",
 	metavar="level",
 	action="store",
-	help="",
+	help="""specifies the level of events to log. events upper from that level
+	will be displayed. Default is %s"""%(LOG_DEFAULT),
 	type=str,
 	choices=LOGS,
 	default=LOG_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-p","--percent",
+	metavar="%",
+	action="store",
+	help="""percentage (expressed between 0 and 1) that sets how many items will
+	be sent to the training set from the whole dataset if no validation set is
+	available for the dataset specified. Default is %f"""%
+		(TRAINING_PERCENT_DEFAULT),
+	type=float,
+	default=TRAINING_PERCENT_DEFAULT
 )

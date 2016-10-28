@@ -32,7 +32,7 @@ class Dataset(object):
 	"""
 	def _parse(self):
 		# Create classes and attributes
-		self._classes = [list(set([row[j] for row in self._data]))
+		self._classes = [sorted(list(set([row[j] for row in self._data])))
 			for j in range(len(self._data[0]))]
 		# Count attributes
 		self._isParsed = True
@@ -45,6 +45,13 @@ class Dataset(object):
 	"""
 	def applyAttributes(self,attrSet):
 		self._attrSet = attrSet
+
+	"""
+	Returns a tuple containing two objects: the training set and the validation
+	set objects creating
+	"""
+	def getSets(percent):
+		pass
 
 	def __str__(self):
 		txt =  "%s Specifications\n"%self.__class__.__name__

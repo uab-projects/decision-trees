@@ -6,9 +6,18 @@ class ID3Algorithm(BasicTreeGrowingAlgorithm):
 	def _splitCriterion(self, trainingSet, attributeSet):
 		#create count-list for every attribute remaining in attributeSet
 		entropy_general = self._H(self._countTargetClasses(trainingSet))
-		entropy_list = []
+		entropy_list = self._entropyOfAttributes(trainingSet, attributeSet)
 
-		#check for all the entropies
+		#return the attribute with the maximum gain (minimum entropy) if any
+		gain_list = self._gain(entropy_list, entropy_general)
+		return attributeSet[gain_list.index(max(gain_list))]
+
+	"""
+	Returns the list of entropies of the possible attributes to classify
+	as the next node of the tree
+	"""
+	def _entropyOfAttributes(self, trainingSet, attributeSet):
+		entropy_list = []
 		for attr in attributeSet:
 			#calculate entropy for the next assigment
 			acc = 0.0
@@ -18,10 +27,18 @@ class ID3Algorithm(BasicTreeGrowingAlgorithm):
 				acc += np.sum(new_ts)/np.sum(trainingSet) * self._H(tr)
 
 			entropy_list.append(acc)
+		return entropy_list
 
-		gain_list = list(map(lambda e: entropy_general-e,entropy_list))
-		#return the attribute with the maximum gain (minimum entropy) if any
-		return attributeSet[gain_list.index(max(gain_list))]
+	"""
+	Returns the gain given a list of entropies and the general entropy
+
+	@param 	general_entropy		entropy of the current classification
+	@param 	entropies	 		list of entropies if we classify as some
+								attribute
+	@return gain for each entropy
+	"""
+	def _gain(self, entropies,general_entropy):
+		return list(map(lambda e: general_entropy-e,entropies))
 
 	"""
 	Calculates and returns the entropy of the given values taken as a list

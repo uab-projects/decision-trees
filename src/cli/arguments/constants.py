@@ -27,7 +27,7 @@ SHOW_TREE_DEFAULT = True
 """
 Sets the algorithms available to use
 """
-ALGORITHMS = ["id3","dummy"]
+ALGORITHMS = ["id3","c4.5","dummy"]
 ALGORITHM_DEFAULT = ALGORITHMS[0]
 
 """
@@ -46,4 +46,11 @@ TIMERS_DEFAULT = 0
 Default log level
 """
 LOGS = ["debug","info","warning","error","critical"]
+LOGS_LEVELS = [10,20,30,40,50]
 LOG_DEFAULT = LOGS[1]
+
+"""
+Default percentage of items that will be treated as training set if no
+validation set is specified
+"""
+TRAINING_PERCENT_DEFAULT = 0.8
