@@ -132,10 +132,6 @@ if __name__ == "__main__":
 	# Create algorithm
 	algorithm = selectAlgorithm()
 	tree = algorithm(args.classifier)
-
-	for pre, fill, node in RenderTree(tree):
-		print("%s%s" % (pre, node.name))
-		
 	accuracy = validationSet.validateTree(tree)
 	# Load attribute set
 	attribs = AttrReader(os.path.join(DATASET_PATH,args.dataset,args.dataset+ATTRSET_EXT))
