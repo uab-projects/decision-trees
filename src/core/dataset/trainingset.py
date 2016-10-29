@@ -17,5 +17,5 @@ class TrainingSet(Dataset):
 	def _toNumpy(self):
 		self._data = np.array([
 			np.array([self._classes[j].index(self._data[i][j])
-				for j in range(self._cols)],dtype=np.uint16)
+				for j in range(self._cols)] ,dtype=np.uint16)
 					for i in range(self._rows)])

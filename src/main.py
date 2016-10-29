@@ -8,6 +8,7 @@ from core.dataset.reader import DataReader,AttrReader
 from core.dataset.dataset import *
 from core.dataset.constants import *
 from core.dataset.trainingset import *
+from core.dataset.validationset import *
 from core.algorithms.treegrowing import BasicTreeGrowingAlgorithm
 from core.algorithms.ID3 import ID3Algorithm
 from core.algorithms.C45 import C45Algorithm
@@ -120,14 +121,18 @@ if __name__ == "__main__":
 	trainingSet_pc = getTrainingPerentage()
 	LOGGER.info("Specified percentage to sent to training set is %f",
 		trainingSet_pc)
-	# Create training set from file
-	trainingSet = TrainingSet(reader.getData())
+	# Create training set and validation set from file
+	dataset = Dataset(reader.getData())
+	sets = dataset.getSets(trainingSet_pc)
+	trainingSet = TrainingSet(sets[0])
+	validationSet = ValidationSet(sets[1],args.classifier)
 	# Show it
 	if args.show_dataset:
 		LOGGER.info(trainingSet)
 	# Create algorithm
 	algorithm = selectAlgorithm()
 	tree = algorithm(args.classifier)
+	accuracy = validationSet.validateTree(tree)
 	# Load attribute set
 	attribs = AttrReader(os.path.join(DATASET_PATH,args.dataset,args.dataset+ATTRSET_EXT))
 	try:
@@ -138,6 +143,7 @@ if __name__ == "__main__":
 	# Apply attributes
 	if(attribs.isParsed()):
 		trainingSet.applyAttributes(attribs.getAttr())
+		validationSet.applyAttributes(attribs.getAttr())
 		try:
 			algorithm.translate(tree)
 		except Exception as e:
@@ -146,3 +152,5 @@ if __name__ == "__main__":
 	if args.show_tree:
 		for pre, fill, node in RenderTree(tree):
 			print("%s%s" % (pre, node.name))
+	# Check accuracy
+	LOGGER.info("tree accuracy is: %f"%(accuracy))

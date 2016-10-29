@@ -1,3 +1,8 @@
+import numpy as np
+import logging
+
+LOGGER = logging.getLogger(__name__)
+
 class Dataset(object):
 	"""
 	@attr 	_data   		data containing examples to train / validate
@@ -50,8 +55,14 @@ class Dataset(object):
 	Returns a tuple containing two objects: the training set and the validation
 	set objects creating
 	"""
-	def getSets(percent):
-		pass
+	def getSets(self, percent):
+		np.random.shuffle(self._data)
+		tr = int(self._rows*percent)
+
+		#LOGGER.info("training set has %d elements, validation set has %d elements from a total of %d " %(tr, self._rows-tr,self._rows))
+		#LOGGER.info("first element of the training set is: ",self._data[0])
+		#LOGGER.info("first element of the validation set is: ",self._data[tr])
+		return (self._data[:tr], self._data[tr:])
 
 	def __str__(self):
 		txt =  "%s Specifications\n"%self.__class__.__name__
