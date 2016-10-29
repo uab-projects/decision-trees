@@ -28,10 +28,9 @@ class ValidationSet(Dataset):
 	def validateTree(self, tree):
 		hits = 0.
 		for sample in self._data:
-			print(sample)
-			if self._validateSample(tree, sample):
-				hits += 1
-		print(hits)
+			hits += self._validateSample(tree, sample)
+
+		#print(hits)
 		return hits/self._rows
 
 	def _validateSample(self, tree, sample):
@@ -49,7 +48,7 @@ class ValidationSet(Dataset):
 		values = self._classes[self._target]
 
 		if values.index(node.name) == sample[self._target]:
-			print("HIT!")
+			#print("HIT!")
 			return True
 
 		return False

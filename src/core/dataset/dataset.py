@@ -25,11 +25,13 @@ class Dataset(object):
 	"""
 	def __init__(self,data):
 		self._data = data
+		self._removeUnknown()
 		self._rows = len(self._data)
 		self._cols = len(self._data[0])
 		self._isParsed = False
 		self._attrSet = None
 		self._parse()
+
 
 	"""
 	Parses the dataset to find the possible classes and their attributes
@@ -131,3 +133,8 @@ class Dataset(object):
 	"""
 	def getAttributeSet(self):
 		return self._attrSet
+
+	def _removeUnknown(self):
+		for sample in self._data:
+			if '?' in sample:
+				self._data.remove(sample)

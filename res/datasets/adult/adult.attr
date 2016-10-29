@@ -1,5 +1,4 @@
->50K, <=50K.
-
+salary: >50K, <=50K.
 age: continuous.
 workclass: Private, Self-emp-not-inc, Self-emp-inc, Federal-gov, Local-gov, State-gov, Without-pay, Never-worked.
 fnlwgt: continuous.
