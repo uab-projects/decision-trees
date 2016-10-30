@@ -29,21 +29,15 @@ class ValidationSet(Dataset):
 		hits = 0.
 		for sample in self._data:
 			hits += self._validateSample(tree, sample)
-		#print(hits)
 		return hits/self._rows
 
 	def _validateSample(self, tree, sample):
 		node = tree
 		while not node.is_leaf:
 			childs = [e.name for e in node.children]
-			# has children -> evalueate next node with next attribute
+			# has children -> evaluate next node with next attribute
 			attribute = sample[node.name]
-			#print(childs,attribute)
 			if not attribute in childs:
-				#default policy poisonous, just in case:
-				# we don't want people dying
-				if sample[self._target] =='p':
-					return True
 				return False
 			next_node = childs.index(attribute)
 			node = node.children[next_node].children[0]
@@ -51,7 +45,5 @@ class ValidationSet(Dataset):
 		values = self._classes[self._target]
 
 		if values.index(node.name) == sample[self._target]:
-			#print("HIT!")
 			return True
-
 		return False
