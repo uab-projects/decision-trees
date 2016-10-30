@@ -59,6 +59,7 @@ class TreeGrowingAlgorithm(object):
 		# classify
 		LOGGER.debug("Starting to generate decision tree")
 		tree = self._treeGrowing(trainingSet, attributeSet)
+		LOGGER.debug("Decision tree generated")
 		self._isRunning = False
 		return tree.children[0]
 
@@ -187,6 +188,24 @@ class TreeGrowingAlgorithm(object):
 	"""
 	def _H(self, trainingSet):
 		pass
+
+	"""
+	Makes a 2-way partition from a continuous feature in order to make a smarter
+	and smaller separation in the tree.
+
+	@param feature	continous feature to make a partition
+
+	@return
+	"""
+	def continous2Discrete(feature):
+		data = self._data.getClasses()
+		if data[feature] == "continuous":
+			#for every possible partition, look for the best, in entropy terms
+			for i in range(len(data)-1):
+				threshold = (data[i]+data[i+1])/2.
+
+		else:
+			#do nothing or whatever David wants
 
 """
 Dummy implementation of the tree growing algorithm. Generates a decision tree

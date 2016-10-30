@@ -20,7 +20,7 @@ DEFAULT_PARSER = argparse.ArgumentParser(
 )
 DEFAULT_PARSER.add_argument("-v","--version",
 	action="version",
-	version="Decision-Tree classifier 0.0.0 (alpha)")
+	version="Decision-Tree classifier 0.1 ()")
 DEFAULT_PARSER.add_argument("-d","--dataset",
 	action="store",
 	nargs="?",
@@ -51,7 +51,6 @@ DEFAULT_PARSER.add_argument("--show-tree",
 	default=SHOW_TREE_DEFAULT
 )
 DEFAULT_PARSER.add_argument("-a","--algorithm",
-	metavar="alg",
 	action="store",
 	help="""sets the algorithm to use to classify the training set into a
 	decision tree. Default is %s"""%ALGORITHM_DEFAULT,

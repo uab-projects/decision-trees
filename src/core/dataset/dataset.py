@@ -26,7 +26,6 @@ class Dataset(object):
 	"""
 	def __init__(self,data):
 		self._data = data
-		self._removeUnknown()
 		self._rows = len(self._data)
 		self._cols = len(self._data[0])
 		self._isParsed = False
@@ -56,16 +55,15 @@ class Dataset(object):
 		self._features_mean = featureSet
 
 	"""
-	Returns a tuple containing two objects: the training set and the validation
-	set objects
+	Returns a tuple containing two objects: the training set and the validation set objects created
 	"""
 	def getSets(self, percent):
 		np.random.shuffle(self._data)
 		tr = int(self._rows*percent)
 
-		#LOGGER.info("training set has %d elements, validation set has %d elements from a total of %d " %(tr, self._rows-tr,self._rows))
-		#LOGGER.info("first element of the training set is: ",self._data[0])
-		#LOGGER.info("first element of the validation set is: ",self._data[tr])
+		LOGGER.debug("training set has %d elements, validation set has %d elements from a total of %d " %(tr, self._rows-tr,self._rows))
+		LOGGER.debug("first element of the training set is: ",self._data[0])
+		LOGGER.debug("first element of the validation set is: ",self._data[tr])
 		return (self._data[:tr], self._data[tr:])
 
 	def __str__(self):
@@ -135,11 +133,3 @@ class Dataset(object):
 	"""
 	def getFeaturesMeaning(self):
 		return self._features_mean
-
-	"""
-	Removes the samples that contain unknown values
-	"""
-	def _removeUnknown(self):
-		for sample in self._data:
-			if '?' in sample:
-				self._data.remove(sample)

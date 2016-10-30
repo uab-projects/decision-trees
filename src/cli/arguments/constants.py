@@ -28,7 +28,7 @@ SHOW_TREE_DEFAULT = True
 Sets the algorithms available to use
 """
 ALGORITHMS = ["id3","c4.5","dummy"]
-ALGORITHM_DEFAULT = ALGORITHMS[0]
+ALGORITHM_DEFAULT = ALGORITHMS[1]
 
 """
 Sets the variable of the dataset to use as the classifier for the decision tree
