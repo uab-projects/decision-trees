@@ -7,16 +7,17 @@ class Dataset(object):
 	"""
 	@attr 	_data   		data containing examples to train / validate
 	@attr 	_cols 			rows in the dataset	(number of items)
-	@attr 	_cols			cols in the dataset (number of attributes)
-	@attr 	_classes		list of possible attributes of each column
-	@attr 	_attrSet	 	list of attributes and classes names
-	@attr 	_classes_cnt	count of appearances of the attributes per class
-							format: [class1,class2,..]
-								class1: [attr1_count,attr2_count,...]
+	@attr 	_cols			cols in the dataset (number of features)
+	@attr 	_features_mean 	list of attributes and classes names
+	@attr 	_features_cnt	count of appearances of each feature
+							format: [feature1,feature2,..]
+								feature1: [val1_count,val2_count,...]
+	@attr 	_features_vals	list containing the values suitable for each feature
+	@attr 	_features_map 	creates a map between the found features values and numerical values
 	@attr 	_isParsed 		true if already parsed
 	"""
-	__slots__ = ["_data","_rows","_cols","_classes","_attrSet",
-	"_classes_cnt","_isParsed"]
+	__slots__ = ["_data","_rows","_cols","_features_vals","_features_mean",
+	"_features_cnt","_features_map","_isParsed"]
 
 	"""
 	Initializes a dataset given the matrix of examples
@@ -29,33 +30,34 @@ class Dataset(object):
 		self._rows = len(self._data)
 		self._cols = len(self._data[0])
 		self._isParsed = False
-		self._attrSet = None
+		self._features_mean = None
 		self._parse()
 
 
 	"""
-	Parses the dataset to find the possible classes and their attributes
-	automatically
+	Parses the dataset to find information about it:
+		1. The values valid for each feature searching across the dataset
+
 	"""
 	def _parse(self):
-		# Create classes and attributes
-		self._classes = [sorted(list(set([row[j] for row in self._data])))
+		# Recognize features and its values
+		self._features_vals = [sorted(list(set([row[j] for row in self._data])))
 			for j in range(len(self._data[0]))]
+		self._features_map = [range(len(vals)) for vals in self._features_vals]
 		# Count attributes
 		self._isParsed = True
 
 	"""
-	Applies class names from an attributes set to give meaning to the attribute
-	and its classes
+	Given a list with the meaning for each feature and each feature's values, saves it in the dataset for future operations
 
-	@param 	attrSet 	attribute set with human interesting info
+	@param 	featureSet 	meaning of the features and its values
 	"""
-	def applyAttributes(self,attrSet):
-		self._attrSet = attrSet
+	def setFeaturesMeaning(self, featureSet):
+		self._features_mean = featureSet
 
 	"""
 	Returns a tuple containing two objects: the training set and the validation
-	set objects creating
+	set objects
 	"""
 	def getSets(self, percent):
 		np.random.shuffle(self._data)
@@ -69,14 +71,14 @@ class Dataset(object):
 	def __str__(self):
 		txt =  "%s Specifications\n"%self.__class__.__name__
 		txt += "------------------------------------------------------------\n"
-		txt += "STAT:    %s\n"%("parsed" if self._isParsed else "init")
-		txt += "SIZE:    %d x %d\n"%(self._rows,self._cols)
-		txt += "HEAD:    %s\n"%(self._data[0])
-		txt += "TAIL:    %s\n"%(self._data[-1])
-		txt += "CLASSES: %d\n"%(len(self._classes))
+		txt += "STAT:     %s\n"%("parsed" if self._isParsed else "init")
+		txt += "SIZE:     %d x %d\n"%(self._rows,self._cols)
+		txt += "HEAD:     %s\n"%(self._data[0])
+		txt += "TAIL:     %s\n"%(self._data[-1])
+		txt += "FEATURES: %d\n"%(len(self._features_vals))
 		i = 1
-		for class_attr in self._classes:
-			txt += " [%02d]: %s\n"%(i,class_attr)
+		for vals in self._features_vals:
+			txt += " [%02d]: %s\n"%(i,vals)
 			i+=1
 		txt += "------------------------------------------------------------\n"
 		return txt
@@ -90,19 +92,19 @@ class Dataset(object):
 		return self._isParsed
 
 	"""
-	Returns the number of rows in the dataset
+	Returns the number of items in the dataset (the number of rows)
 
-	@return 	number of rows
+	@return 	number of items (rows)
 	"""
-	def getRows(self):
+	def itemsCount(self):
 		return self._rows
 
 	"""
-	Returns the number of cols in the dataset
+	@return 	number of features (cols)
+	Returns the number of features in the dataset (the number of cols)
 
-	@return 	number of cols
 	"""
-	def getCols(self):
+	def featuresCount(self):
 		return self._cols
 
 	"""
@@ -116,24 +118,27 @@ class Dataset(object):
 		return self._data
 
 	"""
-	Returns the classes that are present in the dataset in the following format
-		[[class1_attrib1,class1_attrib2,...],...]
-	The classes attributes contain exactly what they had when they were loaded
+	Returns the features that are present in the dataset in the following format
+		[[feature1_val1,feature1_val2,...],...]
+	The features values contain exactly what they had when they were loaded
 
 	@return 	classes information
 	"""
-	def getClasses(self):
-		return self._classes
+	def getFeatures(self):
+		return self._features_vals
 
 	"""
-	Returns the classes and attributes information that are in a human language
+	Returns the features information that are in a human language
 	so that we can print useful information
 
-	@return 	attribute set
+	@return 	features meaning
 	"""
-	def getAttributeSet(self):
-		return self._attrSet
+	def getFeaturesMeaning(self):
+		return self._features_mean
 
+	"""
+	Removes the samples that contain unknown values
+	"""
 	def _removeUnknown(self):
 		for sample in self._data:
 			if '?' in sample:

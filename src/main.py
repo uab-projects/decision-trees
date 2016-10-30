@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
 	for pre, fill, node in RenderTree(tree):
 		print("%s%s" % (pre, node.name))
-		
+
 	accuracy = validationSet.validateTree(tree)
 	# Load attribute set
 	attribs = AttrReader(os.path.join(DATASET_PATH,args.dataset,args.dataset+ATTRSET_EXT))
@@ -146,8 +146,8 @@ if __name__ == "__main__":
 		LOGGER.warning("Unable to adquire attributes for the dataset: %s",e)
 	# Apply attributes
 	if(attribs.isParsed()):
-		trainingSet.applyAttributes(attribs.getAttr())
-		validationSet.applyAttributes(attribs.getAttr())
+		trainingSet.setFeaturesMeaning(attribs.getAttr())
+		validationSet.setFeaturesMeaning(attribs.getAttr())
 		try:
 			algorithm.translate(tree)
 		except Exception as e:

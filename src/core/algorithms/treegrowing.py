@@ -34,7 +34,7 @@ class TreeGrowingAlgorithm(object):
 	def __init__(self, trainingSet):
 		self._target = None
 		self._trainingSet = trainingSet
-		self._trainingClasses = trainingSet.getClasses()
+		self._trainingClasses = trainingSet.getFeatures()
 		self._trainingData = trainingSet.getData()
 		self._isRunning = False
 
@@ -49,8 +49,8 @@ class TreeGrowingAlgorithm(object):
 		assert not self._isRunning, "the algorithm is alredy running"
 		self._isRunning = True
 		# generate attributes and trainingSet
-		trainingSet = np.ones(self._trainingSet.getRows(), dtype=bool)
-		attributeSet = [i for i in range(self._trainingSet.getCols())]
+		trainingSet = np.ones(self._trainingSet.itemsCount(), dtype=bool)
+		attributeSet = [i for i in range(self._trainingSet.featuresCount())]
 		# check correct target
 		assert target in attributeSet, """target attribute is not defined in
 		attribute set, target must be %d <= target < %d"""%(0,len(attributeSet))

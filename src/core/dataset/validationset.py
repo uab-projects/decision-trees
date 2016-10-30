@@ -18,7 +18,7 @@ class ValidationSet(Dataset):
 
 	def _toNumpy(self):
 		self._data = np.array([
-			np.array([self._classes[j].index(self._data[i][j])
+			np.array([self._features_vals[j].index(self._data[i][j])
 				for j in range(self._cols)],dtype=np.uint16)
 					for i in range(self._rows)])
 	"""
@@ -45,7 +45,7 @@ class ValidationSet(Dataset):
 			node = node.children[next_node].children[0]
 
 		# is leaf -> evaluate target
-		values = self._classes[self._target]
+		values = self._features_vals[self._target]
 
 		if values.index(node.name) == sample[self._target]:
 			#print("HIT!")
