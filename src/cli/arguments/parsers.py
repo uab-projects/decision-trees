@@ -1,5 +1,6 @@
 import argparse
 import ast
+from core.dataset.constants import *
 from .constants import *
 
 # helping methods
@@ -21,11 +22,11 @@ DEFAULT_PARSER = argparse.ArgumentParser(
 DEFAULT_PARSER.add_argument("-v","--version",
 	action="version",
 	version="Decision-Tree classifier 0.2 (alpha)")
+# Data related
 DEFAULT_PARSER.add_argument("-d","--dataset",
 	action="store",
 	nargs="?",
-	help="""specifies the dataset to load (default is %s)"""%\
-		DATASET_DEFAULT,
+	help="""specifies the dataset to load (default is %s). Will try to load inside the folder specified, that is a subfolder of %s, the first file ended with .%s for a training set, the first file ended with .%s for a validation set, and the first file ended with .%s for a feature meanings file. """%(DATASET_DEFAULT, DATASET_PATH, DATASET_TRAINING_EXT, DATASET_VALIDATION_EXT, DATASET_FEATURES_EXT),
 	type=str,
 	choices=DATASETS,
 	default=DATASET_DEFAULT,

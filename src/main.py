@@ -44,16 +44,6 @@ Training set(s) and validation set(s) object(s) to use to generate a decision tr
 """
 datasets = None
 
-"""
-Algorithm to use to split the dataset into training sets and validation sets, if no validation set is available
-"""
-splitAlgorithm = None
-
-"""
-Algorithm to use to generate a decision tree
-"""
-classifyAlgorithm = None
-
 # functions
 """
 Loads the reader object with the proper reader and reads the dataset, saving it

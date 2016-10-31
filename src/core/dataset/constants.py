@@ -18,7 +18,7 @@ DATASET_VALIDATION_EXT = "test"
 """
 Dataset extension for feature meaning files
 """
-DATASET_FEATURES_EXT = "attr"
+DATASET_FEATURES_EXT = "features"
 
 """
 Dataset cols separator
