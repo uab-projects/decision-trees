@@ -156,7 +156,7 @@ class FileDatasetReader(DatasetReader):
 						LOGGER.error("Feature %s value definition %s is invalid: no short name (name before %s). Omitting definition",feature_name,value_definition,self.FEATURE_VALUES_DEF_SEP)
 						continue
 					if not len(long_name):
-						LOGGER.warning("Feature %s value definition %s is invalid: no long name (name after %s). Setting default name",feature_name, value_definition, self.FEATURE_VALUES_DEF_SEP)
+						LOGGER.debug("Feature %s value definition %s is invalid: no long name (name after %s). Setting default name",feature_name, value_definition, self.FEATURE_VALUES_DEF_SEP)
 						long_name = short_name
 					# save meaning
 					meaning[1][short_name] = long_name

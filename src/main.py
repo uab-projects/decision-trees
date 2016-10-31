@@ -94,9 +94,9 @@ def generateDatasets():
 			sys.exit(1)
 	else:
 		# validation set is defined
-		datasets = [(originalDataset.getNumericDataset(),
-			originalDataset.getNumericDataset(
-			datasetReader.getValidationData))]
+		datasets = [(originalDataset.getNumericDataset(),None)]
+			#originalDataset.getNumericDataset(
+			#datasetReader.getValidationData()))]
 
 """
 Returns the user selected percentage of samples to sent to the training set or either exits the software if invalid, when using holdout splitting method

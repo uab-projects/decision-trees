@@ -21,6 +21,8 @@ class TreeGrowingAlgorithm(object):
 	@attr 	_data               training matrix obtained from training set containing the samples to classify
 	@attr 	_features		 	possible values for each feature, specified as
 	list of lists
+	@attr 	_continuous 		features whose values are continuous
+	@attr 	_thresholds 		thresholds that set how to discretize the continuous values in order to set 2 partitions (< threshold, >= than threshold)
 	@attr	_isRunning 			controls the algorithm is not run twice
 	"""
 	__slots__ = ["_target","_data","_features","_isRunning"]
@@ -34,6 +36,8 @@ class TreeGrowingAlgorithm(object):
 		self._target = None
 		self._features = trainingSet.getFeaturesValues()
 		self._data = trainingSet.getData()
+		self._continuous = trainingSet.getContinuousFeatures()
+		self._thresholds = [0. for _ in self._continuous]
 		self._isRunning = False
 
 	"""
@@ -193,25 +197,6 @@ class TreeGrowingAlgorithm(object):
 	"""
 	def _H(self, trainingSet):
 		pass
-
-	"""
-	Makes a 2-way partition from a continuous feature in order to make a smarter
-	and smaller separation in the tree.
-
-	@param feature	continous feature to make a partition
-
-	@return
-	"""
-	def continous2Discrete(feature):
-		data = self._data.getClasses()
-		if data[feature] == "continuous":
-			#for every possible partition, look for the best, in entropy terms
-			for i in range(len(data)-1):
-				threshold = (data[i]+data[i+1])/2.
-
-		else:
-			#do nothing or whatever David wants
-			pass
 
 """
 Dummy implementation of the tree growing algorithm. Generates a decision tree

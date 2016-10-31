@@ -21,6 +21,11 @@ Dataset extension for feature meaning files
 DATASET_FEATURES_EXT = "features"
 
 """
+Text to specify in an feature meaning file to say it's continuous
+"""
+DATASET_FEATURE_CONT = "continuous"
+
+"""
 Dataset cols separator
 """
 DATASET_COLS_SEP = ','

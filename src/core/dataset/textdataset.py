@@ -1,4 +1,5 @@
 from .genericdataset import *
+from .constants import *
 import logging
 import numpy as np
 
@@ -60,7 +61,7 @@ class TextDataset(GenericDataset):
 			self._features_map_txt[feature][data[sample][feature]]
 				for feature in range(self._n_features)],dtype=np.uint16)
 					for sample in range(self._n_samples)])
-		return GenericDataset(num_data, self.getFeaturesNumValues())
+		return GenericDataset(num_data, self.getFeaturesNumValues(), self._continuous)
 
 	"""
 	Returns the list of possible values for each feature when using numerical converted dataset
@@ -80,6 +81,11 @@ class TextDataset(GenericDataset):
 	"""
 	def setFeaturesMeaning(self, features_meanings):
 		self._features_mean = features_meanings
+		# check if continuous values
+		for feature in range(len(self._features_mean)):
+			feature_mean = self._features_mean[feature]
+			if DATASET_FEATURE_CONT in feature_mean[1].values():
+				self._continuous[feature] = True
 
 	"""
 	Returns the features information that are in a human language
@@ -164,6 +170,6 @@ class TextDataset(GenericDataset):
 			txt += "FEATURES: List of features and possible values\n"
 			for feature in range(len(self._features_vals)):
 				meaning = self._features_mean[feature]
-				txt += " [%s]: %s\n"%(meaning[0],list(meaning[1].values()))
+				txt += " [%s]: %s\n"%(meaning[0],list(meaning[1].values()) if not self._continuous[feature] else "<continuous>")
 		txt += "------------------------------------------------------------\n"
 		return txt

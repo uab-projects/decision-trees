@@ -5,7 +5,7 @@ class C45Algorithm(ID3Algorithm):
 	def _splitCriterion(self, trainingSet, featureSet):
 		#create count-list for every feature remaining in featureSet
 		entropy_general = self._H(self._countTargetClasses(trainingSet))
-		entropy_list = self._entropyOfAttributes(trainingSet, featureSet)
+		entropy_list = self._entropyOfFeatures(trainingSet, featureSet)
 
 		#return the attribute with the maximum gain (minimum entropy) if any
 		gain_list = self._gain(entropy_list, entropy_general)

@@ -1,3 +1,6 @@
+# libraries
+import numpy as np
+
 """
 Contains a set of samples that will be used to run a decision tree algorithm
 to generate a classifying tree in order to classify them. The samples are represented as a matrix where each row is a sample and each column of a row sets the feature values for the sample
@@ -8,8 +11,9 @@ class GenericDataset(object):
 	@attr   _n_samples	  number of samples in the data set (rows of the data)
 	@attr   _n_features	 number of features for each sample (columns of the data)
 	@attr   _features_vals  list containing for each feature, the possible values in it
+	@attr 	_continuous 	list containing per each column a true value if is a continuous feature values or not
 	"""
-	__slots__ = ["_data","_n_samples","_n_features","_features_vals"]
+	__slots__ = ["_data","_n_samples","_n_features","_features_vals","_continuous"]
 
 	"""
 	Initializes a new data set with the data given, setting the number of items and features manually, or either being automatic (then len of data are rows and len of data[0] will be cols)
@@ -17,11 +21,13 @@ class GenericDataset(object):
 	@param  data			the data of the datset
 	@param  features_vals   values suitable for each feature, specified as a list:
 		[[feature1_val1,feature1_val2,..],...]
+	@param 	continuous 	list specifying the continuous attributes
 	@param  samples		 number of samples in the dataset (default is calculated automatically)
 	@param  features		number of features per sample (default is calculated automatically using first sample in the data)
 	"""
-	def __init__(self, data, features_vals = None, samples = None, features = None):
+	def __init__(self, data, features_vals = None, continuous = None, samples = None, features = None):
 		self._data = data
+		self._continuous = continuous
 		self._features_vals = features_vals
 		self._n_samples = samples
 		self._n_features = features
@@ -32,6 +38,8 @@ class GenericDataset(object):
 			self._n_features = len(data[0]) if len(data) else 0
 		if features_vals == None:
 			self._guessFeaturesValues()
+		if continuous == None:
+			self._continuous = np.zeros(self._n_samples,dtype=bool)
 
 	"""
 	Loops through all samples to learn all the possible values that each feature can have. This calculation is only necessary if no features values have been specified
@@ -84,6 +92,14 @@ class GenericDataset(object):
 	"""
 	def getFeaturesCount(self):
 		return self._n_features
+
+	"""
+	Returns a list containing per each feature, a true or false value, depending if the feature values of that feature are continuous or not
+
+	@return 	list of features whose values are continuous
+	"""
+	def getContinuousFeatures(self):
+		return self._continuous
 
 	"""
 	Returns a text containing the basic information for the dataset: number of samples in it, features, per sample and the first and last sample. It also returns the possible values for each feature (if not disabled in the argument)
