@@ -31,6 +31,24 @@ ALGORITHMS = ["id3","c4.5","dummy"]
 ALGORITHM_DEFAULT = ALGORITHMS[1]
 
 """
+Sets the algorithm to use to split a dataset into a dataset and training set if no training set is available
+"""
+SPLITTERS = ["holdout","cross-validation","leave1out","bootstrapping"]
+SPLITTER_DEFAULT = SPLITTERS[0]
+
+"""
+Default percentage of items that will be treated as training set if no
+validation set is specified, when holdout method is specified
+"""
+HOLDOUT_PERCENT_DEFAULT = 0.75
+
+"""
+Number of groups to create to use the cross-validation method to split the dataset into training and validation sets
+"""
+CROSSVALID_K = 4
+CROSSVALID_K_MIN = 2
+
+"""
 Sets the variable of the dataset to use as the classifier for the decision tree
 It has to bee a column from the training set
 """
@@ -48,9 +66,3 @@ Default log level
 LOGS = ["debug","info","warning","error","critical"]
 LOGS_LEVELS = [10,20,30,40,50]
 LOG_DEFAULT = LOGS[1]
-
-"""
-Default percentage of items that will be treated as training set if no
-validation set is specified
-"""
-TRAINING_PERCENT_DEFAULT = 0.8

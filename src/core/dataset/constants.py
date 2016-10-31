@@ -6,16 +6,21 @@ Dataset path
 DATASET_PATH = os.path.join("res","datasets")
 
 """
-Dataset extension
+Dataset extension for training data files
 """
-DATASET_EXT = ".data"
+DATASET_TRAINING_EXT = "data"
 
 """
-Dataset separator
+Dataset extension for validation data files
 """
-DATASET_SEP = ','
+DATASET_VALIDATION_EXT = "test"
 
 """
-Dataset extension for attributes files
+Dataset extension for feature meaning files
 """
-ATTRSET_EXT = ".attr"
+DATASET_FEATURES_EXT = "attr"
+
+"""
+Dataset cols separator
+"""
+DATASET_COLS_SEP = ','

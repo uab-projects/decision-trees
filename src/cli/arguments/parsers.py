@@ -20,7 +20,7 @@ DEFAULT_PARSER = argparse.ArgumentParser(
 )
 DEFAULT_PARSER.add_argument("-v","--version",
 	action="version",
-	version="Decision-Tree classifier 0.1 ()")
+	version="Decision-Tree classifier 0.2 (alpha)")
 DEFAULT_PARSER.add_argument("-d","--dataset",
 	action="store",
 	nargs="?",
@@ -34,7 +34,7 @@ DEFAULT_PARSER.add_argument("--show-dataset",
 	metavar="true|false",
 	action="store",
 	nargs="?",
-	help="""enables or disables printing the dataset information (%s
+	help="""enables or disables printing dataset information (%s
 	by default)"""%("enabled" if SHOW_DATASET_DEFAULT else "disabled"),
 	type=evalTF,
 	const=True,
@@ -62,10 +62,32 @@ DEFAULT_PARSER.add_argument("-c","--classifier",
 	metavar="variable",
 	action="store",
 	help="""sets the classifier variable to use to generate the decision tree.
-	It has to be a column from the dataset. By default, we use the column %d
+	It has to be a column from the dataset, either as a number or if the dataset has the feature names, by its name. By default, we use the column %d
 	of the dataset)"""%TARGET_DEFAULT,
-	type=int,
+	type=str,
 	default=TARGET_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-s","--splitter",
+	action="store",
+	help="""sets the splitting meta-algorithm to use to generate the training sets and validation sets from the dataset if in the specified dataset no validation set is present. Default is %s"""%(SPLITTER_DEFAULT),
+	type=str,
+	choices=SPLITTERS,
+	default=SPLITTER_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-p","--percent",
+	metavar="%",
+	action="store",
+	help="""when using holdout splitter, sets the percentage (expressed between 0 and 1) that sets how many items will be sent to the training set from the whole dataset if no validation set is available for the dataset specified. Default is %f"""%
+		(HOLDOUT_PERCENT_DEFAULT),
+	type=float,
+	default=HOLDOUT_PERCENT_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-k","--cross-validation-k",
+	metavar="groups",
+	action="store",
+	help="""when using cross-validation splitter, sets the k-number of groups to divide the dataset into in order to in each k-iteration, consider the k-group as validation set and the other groups as training sets. When k=number of samples, the cross-validation is switched into leave1out. Value has to be between %d <= k <= number of samples of the dataset. Default is %s"""%(CROSSVALID_K_MIN, CROSSVALID_K),
+	type=int,
+	default=CROSSVALID_K
 )
 DEFAULT_PARSER.add_argument("-t",
 	action="count",
@@ -82,14 +104,4 @@ DEFAULT_PARSER.add_argument("-l","--log-level",
 	type=str,
 	choices=LOGS,
 	default=LOG_DEFAULT
-)
-DEFAULT_PARSER.add_argument("-p","--percent",
-	metavar="%",
-	action="store",
-	help="""percentage (expressed between 0 and 1) that sets how many items will
-	be sent to the training set from the whole dataset if no validation set is
-	available for the dataset specified. Default is %f"""%
-		(TRAINING_PERCENT_DEFAULT),
-	type=float,
-	default=TRAINING_PERCENT_DEFAULT
 )
