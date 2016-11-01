@@ -37,7 +37,6 @@ class TreeGrowingAlgorithm(object):
 		self._features = trainingSet.getFeaturesValues()
 		self._data = trainingSet.getData()
 		self._continuous = trainingSet.getContinuousFeatures()
-		self._thresholds = [0. for _ in self._continuous]
 		self._isRunning = False
 
 	"""
@@ -77,40 +76,45 @@ class TreeGrowingAlgorithm(object):
 	"""
 	def _treeGrowing(self, trainingSet, featureSet, parent=Node("root"),
 	 	depth=0):
-		# should be something different, specified like that on notes
 		LOGGER.debug("-> treeGrowing Iteration (depth=%d)",depth)
 		LOGGER.debug("   Parent is: %s",str(parent.name))
 		if self._stopCriterion(trainingSet, featureSet):
-			# fulles
+			# leaf
 			LOGGER.debug("--> Leaf reached.")
 			leaf = self._selectLeaf(trainingSet)
 			LOGGER.debug("    Leaf has been tagged as %s",self._features[self._target][leaf])
 			Node(self._features[self._target][leaf],parent)
 		else:
+			# branch
 			LOGGER.debug("--> Splitting tree")
-			feature = self._splitCriterion(trainingSet, featureSet)
+			featureNode = self._splitCriterion(trainingSet, featureSet)
+			featureNode.parent = parent
+			# Get data from the node
+			feature = featureNode.name
 			featureSet.remove(feature)
-			feature_node = Node(feature,parent)
 			LOGGER.debug("---> Split criterion: %d",feature)
 			# temporary, just an idea -- born to help, not to work
-			for feature_value in self._features[feature]:
+			for featureValue in featureNode.featureValues:
 				# cut training set
-				filteredTrainingSet = trainingSet * self._filterByAttributeValue(feature,feature_value)
-				LOGGER.debug("----> Created node for %s",self._features[feature][feature_value])
+				filteredTrainingSet = trainingSet * self._filterByFeatureValue(feature,featureValue,featureNode.featureData)
+				LOGGER.debug("----> Created node for %s",featureValue)
 				LOGGER.debug("      Examples:     %s (in, out)",str(np.bincount(filteredTrainingSet,minlength=2)[::-1]))
 				LOGGER.debug("      Distribution: %s (%s)",self._countTargetClasses(filteredTrainingSet),self._features[self._target])
 				# Recursive call
 				if(np.sum(filteredTrainingSet)):
-					self._treeGrowing(filteredTrainingSet, featureSet, Node(feature_value,feature_node),depth+1)
+					self._treeGrowing(filteredTrainingSet, featureSet, Node(featureValue,featureNode),depth+1)
 		return parent
 
 	"""
-	Given a feature and its value, selects all the samples whose feature specified matches the specified feature value.
+	Given a feature and its value, selects all the samples whose feature specified matches the specified feature value in the feature data passed
 
+	@param 		feature 		feature whose values will be filtered
+	@param 		featureValue 	value of the feature the samples must match
+	@param 		featureData 	feature data of the samples
 	@return 	boolean array where trues are samples in the data that match the filter
 	"""
-	def _filterByAttributeValue(self, feature, featureValue):
-		return np.where(self._data[:,feature] == featureValue,True,False)
+	def _filterByFeatureValue(self, feature, featureValue, featureData):
+		return np.where(featureData == featureValue,True,False)
 
 	"""
 	Given a reference to the data as a boolean arrays, takes those true samples and counts how are they distributed according to the target feature
@@ -128,31 +132,31 @@ class TreeGrowingAlgorithm(object):
 		return self._countTargetClasses(trainingSet).argmax()
 
 	"""
-	Applies attributes (if any) from the training set in order to transform a
-	numerical weird meaning-less tree into something useful
+	Adds a meaning field to each node in order to then print the node with useful information. The algorithm will try to look for meanings in the original dataset, but will retrieve default values if not possible
 
 	@param 	tree 	tree to translate
+	@param 	target 	target feature to classify
+	@param 	dataset dataset to retrieve meanings from
 	"""
-	def translate(self,tree):
-		attrs = self._trainingSet.getAttributeSet()
-		classes = self._trainingSet.getClasses()
-		if not attrs:
-			return None
+	def translate(tree, target, dataset):
+		continuous = dataset.getContinuousFeatures()
 		def _translate(node,depth=0):
-			if not node.children:
-				node.name = attrs[self._target][1][node.name]
+			if node.is_leaf:
+				node.meaning = dataset.getFeatureNumValueMeaning(target,node.name)
 			else:
 				# translate my children
 				for child in node.children:
 					_translate(child,depth+1)
 				# translate me
 				if depth % 2:
-					# odd: is a class name
-					short_name = classes[node.parent.name][node.name]
-					node.name = attrs[node.parent.name][1][short_name]
+					# odd: is a feature value name
+					if continuous[node.parent.name]:
+						node.meaning = ">=%f"%node.parent.threshold if node.name else "<%f"%node.parent.threshold
+					else:
+						node.meaning = dataset.getFeatureNumValueMeaning(node.parent.name, node.name)
 				else:
-					# even: is a attribute name
-					node.name = attrs[node.name][0]
+					# even: is a feature name
+					node.meaning = dataset.getFeatureMeaning(node.name)
 		return _translate(tree)
 
 	"""
@@ -171,19 +175,17 @@ class TreeGrowingAlgorithm(object):
 	Determines if the tree must stop growing and put a leaf or not, based on
 	the current training set and attribute set remaining
 
-	@return 	True if stop
+	@return 	True if stop and put a leaf
 	"""
 	@abstractmethod
 	def _stopCriterion(self, trainingSet, featureSet):
 		pass
 
 	"""
-	Selects the next attribute in order to classify the samples to determine the
-	target value
+	Selects the next feature to classify the tree and returns a node for the tree containing that feature
 
 	@param  trainingSet Set of samples to build the tree
-
-	@return attribute   Next attribute to be classified
+	@return node   		tree node containing the feature to classify and its properties
 	"""
 	@abstractmethod
 	def _splitCriterion(self, trainingSet, featureSet):
@@ -191,7 +193,7 @@ class TreeGrowingAlgorithm(object):
 
 	"""
 	Computes the entropy of the node, its a disorder indicator in order to be
-	used as a split criterion, to select the next attribute to be classified.
+	used as a split criterion, to select the next feature to be classified.
 
 	@returns	h   the entropy value for the current assigment
 	"""
@@ -213,5 +215,12 @@ class BasicTreeGrowingAlgorithm(TreeGrowingAlgorithm):
 
 		#Continue classifying
 		return False
+
 	def _splitCriterion(self, trainingSet, featureSet):
-		return featureSet[0]
+		feature = featureSet[0]
+		featureNode = Node(feature)
+		featureNode.featureValues = self._features[feature]
+		featureNode.featureData = self._data[:,feature]
+		featureNode.isContinuous = self._continuous[feature]
+		featureNode.threshold = None
+		return featureNode

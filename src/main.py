@@ -215,7 +215,8 @@ if __name__ == "__main__":
 	# LOGGER.info(general_confusion_matrix)
 	# Print tree
 	if args.show_tree:
+		algorithm.translate(tree,classifier, originalDataset)
 		for pre, fill, node in RenderTree(tree):
-			print("%s%s" % (pre, node.name))
+			print("%s%s" % (pre, node.meaning))
 		if len(datasets) > 1:
 			LOGGER.warning("The tree provided is the last calculated, you are using a splitting method that generates more than 1 tree, so this tree does not guarantee the provided measures")

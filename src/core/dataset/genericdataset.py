@@ -38,7 +38,7 @@ class GenericDataset(object):
 			self._n_features = len(data[0]) if len(data) else 0
 		if features_vals == None:
 			self._guessFeaturesValues()
-		if continuous == None:
+		if continuous is None:
 			self._continuous = np.zeros(self._n_samples,dtype=bool)
 
 	"""

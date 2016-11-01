@@ -11,7 +11,15 @@ class C45Algorithm(ID3Algorithm):
 		gain_list = self._gain(entropy_list, entropy_general)
 		split_list = self._splitInfoOfAttributes(trainingSet, featureSet)
 		gain_ratio = C45Algorithm._gainRatio(gain_list, split_list)
-		return featureSet[gain_ratio.index(max(gain_ratio))]
+		feature = featureSet[gain_ratio.index(max(gain_ratio))]
+
+		# Create node
+		featureNode = Node(feature)
+		featureNode.featureValues = self._features[feature]
+		featureNode.featureData = self._data[:,feature]
+		featureNode.isContinuous = False
+		featureNode.threshold = None
+		return featureNode
 
 	def _gainRatio(gain_list,split_list):
 		return [gain_list[i]/split_list[i] if split_list[i] else 0.
@@ -28,7 +36,7 @@ class C45Algorithm(ID3Algorithm):
 			#calculate entropy for the next assigment
 			acc = 0.0
 			for value in self._features[feature]:
-				s_v = trainingSet * self._filterByAttributeValue(feature,value)
+				s_v = trainingSet * self._filterByFeatureValue(feature,value,self._data[:,feature])
 				card_s_v = np.sum(s_v)
 				x = card_s_v / card_s
 				if x:

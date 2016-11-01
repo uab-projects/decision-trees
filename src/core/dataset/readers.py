@@ -152,9 +152,14 @@ class FileDatasetReader(DatasetReader):
 				for value_definition in feature_values:
 					# read long name and short name
 					names = value_definition.split(self.FEATURE_VALUES_DEF_SEP)
-					while len(names) < 2:
-						names.append("")
-					long_name , short_name = names[1].strip(), names[0].strip()
+					if len(names) == 1:
+						# we suppose that if no short name, the long name is the short name
+						names.append(names[0])
+					long_name, short_name = names[0].strip(), names[1].strip()
+					# mathematical meanings
+					if long_name == "<" or long_name == ">":
+						long_name += "=" + short_name
+						short_name = long_name
 					# check names are correct
 					if not len(short_name):
 						LOGGER.error("Feature %s value definition %s is invalid: no short name (name before %s). Omitting definition",feature_name,value_definition,self.FEATURE_VALUES_DEF_SEP)

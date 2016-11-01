@@ -1,4 +1,5 @@
 from .treegrowing import *
+from anytree import *
 import math
 
 #Basic ID3 algorithm version
@@ -6,12 +7,45 @@ class ID3Algorithm(BasicTreeGrowingAlgorithm):
 	def _splitCriterion(self, trainingSet, featureSet):
 		#create count-list for every attribute remaining in featureSet
 		entropy_general = self._H(self._countTargetClasses(trainingSet))
-		entropy_list = self._entropyOfFeatures(trainingSet, featureSet)
-
+		#entropy_list = self._entropyOfFeatures(trainingSet, featureSet)
+		featureDatas, featureValues, featureEntropies, featureThresholds = self._calculateFeatures(trainingSet, featureSet)
 		#return the attribute with the maximum gain (minimum entropy) if any
-		gain_list = self._gain(entropy_list, entropy_general)
-		feature = gain_list.index(max(gain_list))
-		return featureSet[feature]
+		gain_list = self._gain(featureEntropies, entropy_general)
+		feature_index = gain_list.index(max(gain_list))
+		feature = featureSet[feature_index]
+
+		# Node for the feature
+		featureNode = Node(feature)
+		featureNode.featureValues = featureValues[feature_index]
+		featureNode.featureData = featureDatas[feature_index]
+		featureNode.isContinuous = self._continuous[feature]
+		featureNode.threshold = featureThresholds[feature_index]
+		featureNode.entropy = featureEntropies[feature_index]
+		return featureNode
+
+	"""
+	"""
+	def _calculateFeatures(self, trainingSet, featureSet):
+		featureDatas = []
+		featureValues = []
+		featureEntropies = []
+		featureThresholds = []
+		for feature in featureSet:
+			# Continuous feature?
+			if self._continuous[feature]:
+				# Discretize and append
+				entropy, threshold = self._entropyOfContinuousFeature(trainingSet, feature)
+				featureDatas.append(np.where(self._data[:,feature] < threshold, 0, 1))
+				featureValues.append([0,1])
+				featureThresholds.append(threshold)
+				featureEntropies.append(entropy)
+			else:
+				# Append feature
+				featureDatas.append(self._data[:,feature])
+				featureValues.append(self._features[feature])
+				featureThresholds.append(None)
+				featureEntropies.append(self._entropyOfFeature(trainingSet, feature, self._features[feature], self._data[:,feature]))
+		return featureDatas, featureValues, featureEntropies, featureThresholds
 
 	"""
 	Returns the list of entropies of the possible attributes to classify
@@ -24,7 +58,6 @@ class ID3Algorithm(BasicTreeGrowingAlgorithm):
 			if self._continuous[feature]:
 				print("Evaluating feature %d"%feature)
 				print(self._entropyOfContinuousFeature(trainingSet, feature))
-				print(self._thresholds[feature])
 			#else:
 			entropy_list.append(self._entropyOfFeature(trainingSet,feature,self._features[feature],self._data[:,feature]))
 		return entropy_list
@@ -86,5 +119,4 @@ class ID3Algorithm(BasicTreeGrowingAlgorithm):
 			if entropy < entropy_min:
 				entropy_min = entropy
 				best_threshold = threshold
-		self._thresholds[feature] = best_threshold
-		return entropy_min
+		return entropy_min, best_threshold
