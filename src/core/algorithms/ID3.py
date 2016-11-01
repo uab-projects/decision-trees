@@ -22,6 +22,7 @@ class ID3Algorithm(BasicTreeGrowingAlgorithm):
 		for feature in featureSet:
 			#calculate entropy for the next assigment
 			if self._continuous[feature]:
+				print("Evaluating feature %d"%feature)
 				print(self._entropyOfContinuousFeature(trainingSet, feature))
 				print(self._thresholds[feature])
 			#else:

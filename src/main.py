@@ -7,6 +7,7 @@ from cli.arguments.constants import *
 from core.dataset.readers import FileDatasetReader
 from core.dataset.textdataset import TextDataset
 from core.dataset.splitter import DatasetSplitter
+from core.dataset.filters import DatasetFilterer
 from core.dataset.constants import *
 from core.dataset.trainingset import *
 from core.dataset.validationset import *
@@ -63,10 +64,16 @@ def readDataset():
 		sys.exit(1)
 	# check at least we have training data
 	if datasetReader.getTrainingData() == None:
-		LOGGER.critical("No training data was loaded for the dataset %s. We can't continue",folder)
+		LOGGER.critical("No training data was loaded for the dataset %s. We can't continue",source)
 		sys.exit(1)
+	# Create filter
+	originalData = datasetReader.getTrainingData()
+	LOGGER.info("Loaded data from file, total %d samples with %d features",len(originalData),len(originalData[0]))
+	filterer = DatasetFilterer(originalData)
+	filterer.deleteUnknownSamples()
+
 	# set original data
-	originalDataset = TextDataset(datasetReader.getTrainingData())
+	originalDataset = TextDataset(filterer.getData())
 
 	# check if we have features
 	if datasetReader.getFeaturesData() == None:
@@ -94,6 +101,9 @@ def generateDatasets():
 			sys.exit(1)
 	else:
 		# validation set is defined
+		# Create filter
+		# filterer = DatasetFilterer(datasetReader.getTrainingData())
+		# filterer.deleteUnknownSamples()
 		datasets = [(originalDataset.getNumericDataset(),None)]
 			#originalDataset.getNumericDataset(
 			#datasetReader.getValidationData()))]

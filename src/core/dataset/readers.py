@@ -116,7 +116,11 @@ class FileDatasetReader(DatasetReader):
 	@return 	data loaded or None if does not exist
 	"""
 	def _readFile(self, filename):
-		return list(csv.reader(open(filename, 'r'), delimiter=DATASET_COLS_SEP))
+		LOGGER.debug("Starting to read %s",filename)
+		data = list(csv.reader(open(filename, 'r'), delimiter=DATASET_COLS_SEP,skipinitialspace=True))
+		#data = [[s.strip() for s in row] for row in data]
+		LOGGER.debug("Finished reading %s", filename)
+		return data
 
 	"""
 	Parses the features data to format it before returning it

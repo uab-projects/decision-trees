@@ -49,6 +49,12 @@ class TextDataset(GenericDataset):
 				i+=1
 
 	"""
+	Update the numeric mappers
+	"""
+	def udpateNumericMappers(self):
+		self.__createNumericMappers()
+
+	"""
 	Returns a numerical, NumPy dataset object (the same object, but with numpy data) where each text feature is mapped to a number. If some data is specified rather than the data in the own dataset, those data will be used
 
 	@return 	generic dataset with the same data and attributes but with the data mapped to numbers
@@ -58,7 +64,7 @@ class TextDataset(GenericDataset):
 			data = self._data
 		num_data = np.array([
 			np.array([
-			self._features_map_txt[feature][data[sample][feature]]
+			int(data[sample][feature]) if self._continuous[feature] else self._features_map_txt[feature][data[sample][feature]]
 				for feature in range(self._n_features)],dtype=np.uint16)
 					for sample in range(self._n_samples)])
 		return GenericDataset(num_data, self.getFeaturesNumValues(), self._continuous)
@@ -69,7 +75,7 @@ class TextDataset(GenericDataset):
 	@return	 list of possible values per feature
 	"""
 	def getFeaturesNumValues(self):
-		return [list(range(len(vals))) for vals in self._features_vals]
+		return [ list(map(int,self._features_vals[feature])) if self._continuous[feature] else list(range(len(self._features_vals[feature]))) for feature in range(len(self._features_vals))]
 
 	"""
 	Given a list with the meaning for each feature and each feature's values, saves it in the dataset for future operations. The list is formatted according to the following format:
