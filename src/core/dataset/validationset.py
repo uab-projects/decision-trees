@@ -20,6 +20,8 @@ class ValidationSet(GenericDataset):
 	"""
 	def validateTree(self, tree, target):
 		#confusionMatrix = ConfusionMatrix(self._features_vals[target])
+		if not len(self._data):
+			return None
 		hits = 0.
 		for sample in self._data:
 			hits += self._classifySample(tree, sample, target)
@@ -29,16 +31,20 @@ class ValidationSet(GenericDataset):
 	def _classifySample(self, tree, sample, target):
 		node = tree
 		while not node.is_leaf:
-			childs = [e.name for e in node.children]
-			# has children -> evaluate next node with next attribute
-			attribute = sample[node.name]
-			if not attribute in childs:
-				return False
-			next_node = childs.index(attribute)
-			node = node.children[next_node].children[0]
+			featureValues = [e.name for e in node.children]
+			# has children -> evaluate next node with next feature
+			featureValue = sample[node.name]
+			if not featureValue in featureValues:
+				# not in possible values
+				# suppose that is the most common feature in that level
+				samples = [n.samples for n in node.children]
+				samplesMaxIndex = samples.index(max(samples))
+				next_node = node.children[samplesMaxIndex]
+			else:
+				next_node = node.children[featureValues.index(featureValue)]
+			node = next_node.children[0]
 		# is leaf -> evaluate target
 		values = self._features_vals[target]
-
 		if values.index(node.name) == sample[target]:
 			return True
 		return False

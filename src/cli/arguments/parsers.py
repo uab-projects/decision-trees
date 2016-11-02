@@ -97,6 +97,34 @@ DEFAULT_PARSER.add_argument("-k","--cross-validation-k",
 	type=int,
 	default=CROSSVALID_K
 )
+DEFAULT_PARSER.add_argument("-r","--random-forest",
+	metavar="true|false",
+	action="store",
+	nargs="?",
+	help="""enables or disables the random forest generation in order to get more accuracy and avoid overfitting (%s by default)"""%("enabled" if RANDOM_FOREST_DEFAULT else "disabled"),
+	type=evalTF,
+	const=True,
+	default=RANDOM_FOREST_DEFAULT
+)
+DEFAULT_PARSER.add_argument("-o","--output",
+	metavar="filename",
+	action="store",
+	help="""saves the generated tree into a file with a picture format (.png). The graphicviz library must be installed""",
+	type=str,
+	default=None
+)
+DEFAULT_PARSER.add_argument("--enable-cache",
+	action="store_const",
+	help="""stores the generated trees into a file, so when using the --from-cache option, the trees will not be calculated, they will be loaded from the file of the last caching""",
+	const=True,
+	default=False
+)
+DEFAULT_PARSER.add_argument("--from-cache",
+	action="store_const",
+	help="""reads the cache file to get the trees from the last execution, instead of calculating the trees again""",
+	const=True,
+	default=False
+)
 DEFAULT_PARSER.add_argument("-t",
 	action="count",
 	help="""records the algorithm's computation time and shows them. You can

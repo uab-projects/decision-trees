@@ -16,7 +16,9 @@ from core.algorithms.treegrowing import BasicTreeGrowingAlgorithm
 from core.algorithms.ID3 import ID3Algorithm
 from core.algorithms.C45 import C45Algorithm
 from core.helpers.types import *
+from anytree.dotexport import RenderTreeGraph
 import logging
+import pickle
 import os
 import platform
 from anytree import *
@@ -230,13 +232,29 @@ if __name__ == "__main__":
 	#confusionMatrix = ConfusionMatrix(wholeDataset.getFeaturesNumValues()[classifier])
 	LOGGER.info("Starting to generate decision tree(s)")
 	# Loop datasets and perform classifications
-	for dataset in datasets:
-		trainingSet, validationSet = dataset[0], dataset[1]
-		tree = algorithm(trainingSet)(classifier)
-		accuracy = validationSet.validateTree(tree, classifier)
+	trainingSet, validationSet = datasets[0][0], datasets[0][1]
+	if args.from_cache:
+		# Trees are cached
+		try:
+			tree = pickle.load(open(TREE_CACHE_FILE, "rb"))
+		except Exception as e:
+			LOGGER.critical("Unable to load tree from cache. Make sure cache file %s exists and is readable (%s)",TREE_CACHE_FILE,e)
+	else:
+		# Trees have to be calculated
+		for dataset in datasets:
+			trainingSet, validationSet = dataset[0], dataset[1]
+			tree = algorithm(trainingSet)(classifier)
 	# Give general accuracy information
 	#print(confusionMatrix)
 	LOGGER.info("Tree generated")
+	if args.enable_cache and not args.from_cache:
+		LOGGER.info("Caching generated trees into a file...")
+		try:
+			pickle.dump(tree, open(TREE_CACHE_FILE, "wb"))
+		except:
+			LOGGER.warning("Unable to cache generated trees")
+	# Validate accuracies
+	accuracy = validationSet.validateTree(tree, classifier)
 	LOGGER.info("accuracy %s"%accuracy)
 	# Print tree
 	if args.show_tree:
@@ -247,3 +265,9 @@ if __name__ == "__main__":
 			print("%s%s" % (pre, node.meaning))
 		if len(datasets) > 1:
 			LOGGER.warning("The tree provided is the last calculated, you are using a splitting method that generates more than 1 tree, so this tree does not guarantee the provided measures")
+	# Save tree
+	if args.output is not None:
+		try:
+			RenderTreeGraph(tree).to_picture(args.output)
+		except Exception as e:
+			LOGGER.error("Unable to export to file %s. Exception occurred. Check you have GraphicViz installed and the file is writable or does not exist yet. (%s)",args.output,e)

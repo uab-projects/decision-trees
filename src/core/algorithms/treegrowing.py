@@ -44,14 +44,16 @@ class TreeGrowingAlgorithm(object):
 	the algorithm has finished.
 
 	@param 	target 				variable to classify
+	@param 	featureSet 			features to take in consideration
 	"""
-	def __call__(self, target):
+	def __call__(self, target, featureSet = None):
 		# not running
 		assert not self._isRunning, "the algorithm is alredy running"
 		self._isRunning = True
 		# generate features and trainingSet
 		trainingSet = np.ones(len(self._data), dtype=bool)
-		featureSet = [i for i in range(len(self._data[0]))]
+		if featureSet == None:
+			featureSet = [i for i in range(len(self._data[0]))]
 		# check correct target
 		assert target in featureSet, """target classifier is not defined in
 		feature set, target must be %d <= target < %d"""%(0,len(featureSet))
@@ -102,7 +104,9 @@ class TreeGrowingAlgorithm(object):
 				LOGGER.debug("      Distribution: %s (%s)",self._countTargetClasses(filteredTrainingSet),self._features[self._target])
 				# Recursive call
 				if(np.sum(filteredTrainingSet)):
-					self._treeGrowing(filteredTrainingSet, featureSet, Node(featureValue,featureNode),depth+1)
+					valueNode = Node(featureValue,featureNode)
+					valueNode.samples = np.sum(filteredTrainingSet)
+					self._treeGrowing(filteredTrainingSet, featureSet, valueNode,depth+1)
 		return parent
 
 	"""
@@ -142,7 +146,12 @@ class TreeGrowingAlgorithm(object):
 		continuous = dataset.getContinuousFeatures()
 		def _translate(node,depth=0):
 			if node.is_leaf:
-				node.meaning = dataset.getFeatureNumValueMeaning(target,node.name)
+				node.meaning = "Feature <%02d> Value <%02d>"%(target,node.name)
+				try:
+					node.meaning = dataset.getFeatureNumValueMeaning(target,node.name)
+				except IndexError as e:
+					LOGGER.warning("Unable to translate leaf with feature and value %d,%d",target,node.name)
+				node.name = node.meaning
 			else:
 				# translate my children
 				for child in node.children:
@@ -157,6 +166,7 @@ class TreeGrowingAlgorithm(object):
 				else:
 					# even: is a feature name
 					node.meaning = dataset.getFeatureMeaning(node.name)
+				node.name = node.meaning
 		return _translate(tree)
 
 	"""

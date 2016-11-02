@@ -16,7 +16,19 @@ DATASET_DEFAULT = DATASETS[0]
 Filters available
 """
 FILTERS = ["none","remove-unknown-rows"]
-FILTERS_DEFAULT = FILTERS[1]
+FILTERS_DEFAULT = FILTERS[0]
+
+# Tree caching
+"""
+Caches the generated tree into the following file
+"""
+TREE_CACHE_FILE = ".cached-trees.json"
+
+# Random forest
+"""
+Random (corre) forest algorithm enabled by default
+"""
+RANDOM_FOREST_DEFAULT = False
 
 # Printing control
 """
