@@ -106,3 +106,7 @@ DEFAULT_PARSER.add_argument("-l","--log-level",
 	choices=LOGS,
 	default=LOG_DEFAULT
 )
+DEFAULT_PARSER.add_argument("-z","--easter",
+	action="count",
+	help="just a little joke, someone will come to visit you",
+)

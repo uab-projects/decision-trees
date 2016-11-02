@@ -175,6 +175,21 @@ def selectClassifier():
 	return target
 
 """
+"""
+def easter():
+	    return """
+  __________________________
+< I love muuuuuuuuuushrooms,  >
+< unless they're poisonous.. >
+  ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅ ̅
+                \   ^__^
+                 \  (xx)\_______
+                    (__)\       )\/\\
+                     U  ||----w |
+                        ||     ||
+    """
+
+"""
 Takes the system arguments vector and tries to parse the arguments in it given
 the argument parser specified and returns the namespace generated
 
@@ -195,6 +210,10 @@ if __name__ == "__main__":
 	root_logger.setLevel(LOGS_LEVELS[LOGS.index(args.log_level)])
 	# Welcome
 	LOGGER.info("Welcome to the Decision Trees software")
+	#easter-egg
+	if args.easter:
+		print(easter())
+		sys.exit()
 	# Read dataset from sources
 	readDataset()
 	# Show dataset information
@@ -214,7 +233,7 @@ if __name__ == "__main__":
 	# Give general accuracy information
 	#print(confusionMatrix)
 	LOGGER.info("Tree generated")
-	LOGGER.info("accuracy %s"%accuracy)
+	LOGGER.info("-> Accuracy %s"%accuracy)
 	# Print tree
 	if args.show_tree:
 		LOGGER.info("Attempting to translate the tree for better comprehension")
