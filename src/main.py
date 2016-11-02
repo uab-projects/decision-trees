@@ -32,14 +32,20 @@ Arguments namespace
 args = None
 
 """
-Reader to use to read the dataset from origin
+Dataset with both training and validation data, useful to guess the feature
+values
 """
-datasetReader = None
+wholeDataset = None
 
 """
-Original dataset read, in text format usually
+Data extracted from the training source
 """
-originalDataset = None
+trainingData = None
+
+"""
+Data extracted from the validation source
+"""
+validationData = None
 
 """
 Training set(s) and validation set(s) object(s) to use to generate a decision tree
@@ -49,11 +55,11 @@ datasets = None
 # functions
 """
 Loads the reader object with the proper reader and reads the dataset, saving it
-into the originalDataset variable according to the dataset specified in the arguments
+into the wholeDataset variable according to the dataset specified in the arguments
 """
 def readDataset():
 	# globals
-	global datasetReader, originalDataset
+	global trainingData, validationData, wholeDataset
 	# dataset is from a file
 	source = os.path.join(DATASET_PATH,args.dataset)
 	datasetReader = FileDatasetReader(source)
@@ -63,50 +69,71 @@ def readDataset():
 		LOGGER.critical("Unable to read dataset from folder %s: %s",
 			source,str(e))
 		sys.exit(1)
+
+	# obtain samples data
+	trainingData = datasetReader.getTrainingData()
+	validationData = datasetReader.getValidationData()
+
 	# check at least we have training data
-	if datasetReader.getTrainingData() == None:
+	if trainingData is None:
 		LOGGER.critical("No training data was loaded for the dataset %s. We can't continue",source)
 		sys.exit(1)
-	# Create filter
-	originalData = datasetReader.getTrainingData()
-	LOGGER.info("Loaded data from file, total %d samples with %d features",len(originalData),len(originalData[0]))
-	filterer = DatasetFilterer(originalData)
-	filterer.deleteUnknownSamples()
-	#print(filterer.getData())
-	# set original data
-	originalDataset = TextDataset(filterer.getData())
+	if validationData is None:
+		validationData = []
+
+	# Reading result
+	wholeData = trainingData + validationData
+	LOGGER.info("Loaded training%s data from file, total %d samples with %d features"," and validation" if validationData is not None else "",len(wholeData),len(wholeData[0]))
+
+	# Filter
+	if args.filter != "none":
+		filterer = DatasetFilterer(wholeData)
+		trainingFilterer = DatasetFilterer(trainingData)
+		validationFilterer = DatasetFilterer(validationData)
+		# unknown rows
+		if args.filter == "remove-unknown-rows":
+			LOGGER.info("Applying filter to delete rows with unknown values")
+			filterer.deleteUnknownSamples()
+			trainingFilterer.deleteUnknownSamples()
+			validationFilterer.deleteUnknownSamples()
+		# update data
+		wholeData = filterer.getData()
+		trainingData = trainingFilterer.getData()
+		validationData = validationFilterer.getData()
+
+	# get whole dataset
+	wholeDataset = TextDataset(wholeData)
 
 	# check if we have features
 	if datasetReader.getFeaturesData() == None:
 		LOGGER.warning("Dataset has no features meaning set, the tree will may be not very useful")
 	else:
-		originalDataset.setFeaturesMeaning(datasetReader.getFeaturesData())
+		wholeDataset.setFeaturesMeaning(datasetReader.getFeaturesData())
 
 """
 Checks if there's any validation data and generates the training and validation numerical datasets. If not, switches the splitting meta-algorithm and generates the trainining sets and validation sets necessary as specified by the algorithm
 """
 def generateDatasets():
 	global datasets
-	if datasetReader.getValidationData() == None:
+	if validationData is None or not len(validationData):
 		# switch algorithm and generate sets
 		LOGGER.info("No validation set found, using splitting algorithm")
-		splitter = DatasetSplitter(originalDataset)
+		splitter = DatasetSplitter(wholeDataset)
 		if args.splitter == "holdout":
 			datasets = [splitter.holdout(getHoldoutPercentage())]
 			LOGGER.info("Applied holdout splitting: created training set has %d elements, validation set has %d elements from a total of %d ",
 				datasets[0][0].getSampleCount(),
 				datasets[0][1].getSampleCount(),
-				originalDataset.getSampleCount())
+				wholeDataset.getSampleCount())
 		else:
 			LOGGER.critical("The splitting method %s has not been implemented yet, sorry :(",args.splitter)
 			sys.exit(1)
 	else:
 		# validation set is defined
-		validationData = datasetReader.getValidationData()
-		filterer = DatasetFilterer(validationData)
-		filterer.deleteUnknownSamples()
-		datasets = [(originalDataset.getNumericDataset(),
-			originalDataset.getNumericDataset(filterer.getData(),ValidationSet))]
+		datasets = [(
+			wholeDataset.getNumericDataset(trainingData,TrainingSet),
+			wholeDataset.getNumericDataset(validationData,ValidationSet)
+		)]
 
 """
 Returns the user selected percentage of samples to sent to the training set or either exits the software if invalid, when using holdout splitting method
@@ -127,8 +154,8 @@ Return the user selected number of groups when performing cross-validation split
 """
 def getCrossValidationK():
 	k = args.k
-	if k < CROSSVALID_K_MIN or k > originalDataset.getSampleCount():
-		LOGGER.critical("""Cross-validation splitting method number of groups (k) specified (%d) has to be minimum %d and maximum %d (because is the size of the dataset)""",k,CROSSVALID_K_MIN, originalDataset.getSampleCount())
+	if k < CROSSVALID_K_MIN or k > wholeDataset.getSampleCount():
+		LOGGER.critical("""Cross-validation splitting method number of groups (k) specified (%d) has to be minimum %d and maximum %d (because is the size of the dataset)""",k,CROSSVALID_K_MIN, wholeDataset.getSampleCount())
 		sys.exit(1)
 	return k
 
@@ -160,7 +187,7 @@ def selectClassifier():
 	if isNatural(target):
 		return target
 	else:
-		feature_names = originalDataset.getFeaturesNames()
+		feature_names = wholeDataset.getFeaturesNames()
 		if feature_names == None:
 			# unable to select from features
 			LOGGER.critical("Unable to select classifier column, the classifier %s is not a natural number and no feature names are available for the dataset to select it using column names", target)
@@ -199,13 +226,14 @@ if __name__ == "__main__":
 	readDataset()
 	# Show dataset information
 	if args.show_dataset:
-		LOGGER.info(originalDataset)
+		LOGGER.info(wholeDataset)
 	# Generate training sets and validation sets
 	generateDatasets()
 	# Create algorithm
 	algorithm = selectAlgorithm()
 	classifier = selectClassifier()
-	#confusionMatrix = ConfusionMatrix(originalDataset.getFeaturesNumValues()[classifier])
+	#confusionMatrix = ConfusionMatrix(wholeDataset.getFeaturesNumValues()[classifier])
+	LOGGER.info("Starting to generate decision tree(s)")
 	# Loop datasets and perform classifications
 	for dataset in datasets:
 		trainingSet, validationSet = dataset[0], dataset[1]
@@ -218,7 +246,7 @@ if __name__ == "__main__":
 	# Print tree
 	if args.show_tree:
 		LOGGER.info("Attempting to translate the tree for better comprehension")
-		algorithm.translate(tree,classifier, originalDataset)
+		algorithm.translate(tree,classifier, wholeDataset)
 		LOGGER.info("Tree translated. Enjoy ;)")
 		for pre, fill, node in RenderTree(tree):
 			print("%s%s" % (pre, node.meaning))

@@ -12,6 +12,12 @@ Default dataset
 """
 DATASET_DEFAULT = DATASETS[0]
 
+"""
+Filters available
+"""
+FILTERS = ["none","remove-unknown-rows"]
+FILTERS_DEFAULT = FILTERS[1]
+
 # Printing control
 """
 Enables or disables showing information about the dataset

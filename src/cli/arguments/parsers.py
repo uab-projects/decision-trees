@@ -31,6 +31,13 @@ DEFAULT_PARSER.add_argument("-d","--dataset",
 	choices=DATASETS,
 	default=DATASET_DEFAULT,
 )
+DEFAULT_PARSER.add_argument("-f","--filter",
+	action="store",
+	help="""specifies the filter that will be applied to the loaded data in order to clean it or remove unwanted samples. Default is %s"""%(FILTERS_DEFAULT),
+	choices=FILTERS,
+	type=str,
+	default=FILTERS_DEFAULT
+)
 DEFAULT_PARSER.add_argument("--show-dataset",
 	metavar="true|false",
 	action="store",
