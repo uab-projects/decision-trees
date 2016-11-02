@@ -21,21 +21,21 @@ class Feature(object):
 	@attr 	_valuesNames 	the names for each feature values
 	@attr   _isContinuous	determines if the feature can take continuous values
 	"""
-	__slots__ = ["_index","_name","_values","_valuesType","_isContinuous"]
+	__slots__ = ["_index","_name","_values","_valuesNames","_valuesType","_isContinuous"]
 
 	"""
 	Initialiazes a new feature given it's index, the values it can take, a boolean indicating if it's continuous or not, the type for that values if necessary, and the name if provided
 
-	@param 	index 		numerical index of the feature inside the dataset
-	@param 	values 		values the feature can take
-	@param 	continuous 	true if continuous feature (false by default)
-	@param 	valuesType	type of the values the feature can take
-	@param 	name 	name of the feature if exists
+	@param 	_index 		numerical index of the feature inside the dataset
+	@param 	_values 		values the feature can take
+	@param 	_isContinuous 	true if continuous feature (false by default)
+	@param 	_valuesType	type of the values the feature can take
+	@param 	_name 	name of the feature if exists
 	"""
 	def __init__(self, index, values, continuous = False, valuesType = str, name = None):
 		self._index = index
 		self._values = values
-		self._continuous = continuous
+		self._isContinuous = continuous
 		self._valuesType = valuesType
 		self._guessValuesNames()
 		self._name = name
@@ -77,6 +77,15 @@ class Feature(object):
 	def setName(self, name):
 		self._name = name
 
+	def __str__(self):
+		txt =  "%s Specifications\n"%self.__class__.__name__
+		txt += "------------------------------------------------------------\n"
+		txt += "NAME:    %d (%s)\n"%(self._index,self._name)
+		txt += "VALS:	 %s\n"%(str(list(map(lambda i: "%d = %s"%(self._values[i],self._valuesNames[i]),range(len(self._values))))) if not self._isContinuous else "<continuous>, %d different values"%(len(self._values)))
+		txt += "CONT:	 %s\n"%("Yes" if self._isContinuous else "No")
+		txt += "------------------------------------------------------------\n"
+		return txt
+
 class DataFeature(Feature):
 	"""
 	@attr 	_data 		data of the feature
@@ -86,12 +95,12 @@ class DataFeature(Feature):
 	"""
 	Initialiazes a new feature given it's index, the values it can take, a boolean indicating if it's continuous or not, the type for that values if necessary, and the name if provided
 
-	@param 	index 		numerical index of the feature inside the dataset
-	@param 	data 		data of the feature
-	@param 	values 		values the feature can take
-	@param 	continuous 	true if continuous feature (false by default)
-	@param 	valuesType	type of the values the feature can take
-	@param 	name 	name of the feature if exists
+	@param 	_index 		numerical index of the feature inside the dataset
+	@param 	_data 		data of the feature
+	@param 	_values 		values the feature can take
+	@param 	_isContinuous 	true if continuous feature (false by default)
+	@param 	_valuesType	type of the values the feature can take
+	@param 	_name 	name of the feature if exists
 	"""
 	def __init__(self, index, data, values, continuous = False, valuesType = str, name = None):
 		super().__init__(index, values, continuous, valuesType, name)

@@ -1,6 +1,7 @@
 from .genericdataset import *
 from .validationset import *
 from .constants import *
+from .feature import *
 import logging
 import numpy as np
 
@@ -72,6 +73,46 @@ class TextDataset(GenericDataset):
 		return datasetType(num_data, self.getFeaturesNumValues(), self._continuous)
 
 	"""
+	Returns a list of feature objects containing each one the data of the feature, index, name, ..., but with the data converted to numbers
+	"""
+	def getNumericFeatures(self, data=None):
+		if data == None:
+			data = self._data
+		features = []
+		for feature_i in range(self._n_features):
+			feature = DataFeature(
+				# feature index
+				feature_i,
+				# feature data
+				np.array([
+					# conversion to int if continuous
+					int(data[sample][feature_i]) if self._continuous[feature_i]\
+					# map to number if discrete
+					else 					self._features_map_txt[feature_i][data[sample][feature_i]] \
+					# do this for all samples
+					for sample in range(self._n_samples)],\
+					# we want uint16
+					dtype=np.uint16),
+				# feature values
+				# conversion to int if continuous
+				list(map(int,self._features_vals[feature_i])) if self._continuous[feature_i]\
+				# indexing if discrete
+				else list(range(len(self._features_vals[feature_i]))),
+				# feature continuous
+				self._continuous[feature_i],
+				# feature type
+				int if self._continuous[feature_i] else str,
+				# name
+				self.getFeatureMeaning(feature_i)
+			)
+			if not self._continuous[feature_i]:
+				feature.setValuesNames(list(map(lambda v: self.getFeatureValueMeaning(feature_i,v), self._features_vals[feature_i])))
+			#print(feature)
+			#input()
+			features.append(feature)
+		return features
+
+	"""
 	Returns the list of possible values for each feature when using numerical converted dataset
 
 	@return	 list of possible values per feature
@@ -138,7 +179,7 @@ class TextDataset(GenericDataset):
 		assert value in feature_values, """cannot retrieve meaning of value %s of the feature %s, the feature value does not exist"""%(feature, value)
 		meaning = value
 		try:
-			meaning = self._features_mean[feature][1][value] if self._features_mean != None else "Feature %d = %s"%(feature,value)
+			meaning = self._features_mean[feature][1][value] if self._features_mean != None else "%s"%(value)
 		except KeyError as e:
 			LOGGER.warning("Unable to translate feature %d value %s, mapping does not exist (%s)",feature,value,str(e))
 		return meaning

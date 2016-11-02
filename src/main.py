@@ -100,12 +100,16 @@ def readDataset():
 	wholeData = trainingData + validationData
 	LOGGER.info("Loaded training%s data from file, total %d samples with %d features"," and validation" if validationData is not None else "",len(wholeData),len(wholeData[0]))
 	wholeDataset = TextDataset(wholeData)
-
 	# check if we have features
 	if datasetReader.getFeaturesData() == None:
 		LOGGER.warning("Dataset has no features meaning set, the tree will may be not very useful")
 	else:
 		wholeDataset.setFeaturesMeaning(datasetReader.getFeaturesData())
+	# calculate features
+	features = wholeDataset.getNumericFeatures()
+	if args.show_features:
+		for feature in features:
+			print(feature,end='')
 
 """
 Checks if there's any validation data and generates the training and validation numerical datasets. If not, switches the splitting meta-algorithm and generates the trainining sets and validation sets necessary as specified by the algorithm

@@ -37,6 +37,11 @@ Enables or disables showing information about the dataset
 SHOW_DATASET_DEFAULT = False
 
 """
+Enables or disables showing information about the Features
+"""
+SHOW_FEATURES_DEFAULT = False
+
+"""
 Enables or disables showing the decision tree to the screen
 """
 SHOW_TREE_DEFAULT = True

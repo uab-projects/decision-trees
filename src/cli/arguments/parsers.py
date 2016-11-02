@@ -48,6 +48,16 @@ DEFAULT_PARSER.add_argument("--show-dataset",
 	const=True,
 	default=SHOW_DATASET_DEFAULT
 )
+DEFAULT_PARSER.add_argument("--show-features",
+	metavar="true|false",
+	action="store",
+	nargs="?",
+	help="""enables or disables printing features information (%s
+	by default)"""%("enabled" if SHOW_FEATURES_DEFAULT else "disabled"),
+	type=evalTF,
+	const=True,
+	default=SHOW_FEATURES_DEFAULT
+)
 DEFAULT_PARSER.add_argument("--show-tree",
 	metavar="true|false",
 	action="store",
