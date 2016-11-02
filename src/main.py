@@ -81,27 +81,22 @@ def readDataset():
 	if validationData is None:
 		validationData = []
 
-	# Reading result
-	wholeData = trainingData + validationData
-	LOGGER.info("Loaded training%s data from file, total %d samples with %d features"," and validation" if validationData is not None else "",len(wholeData),len(wholeData[0]))
-
 	# Filter
 	if args.filter != "none":
-		filterer = DatasetFilterer(wholeData)
 		trainingFilterer = DatasetFilterer(trainingData)
 		validationFilterer = DatasetFilterer(validationData)
 		# unknown rows
 		if args.filter == "remove-unknown-rows":
 			LOGGER.info("Applying filter to delete rows with unknown values")
-			filterer.deleteUnknownSamples()
 			trainingFilterer.deleteUnknownSamples()
 			validationFilterer.deleteUnknownSamples()
 		# update data
-		wholeData = filterer.getData()
 		trainingData = trainingFilterer.getData()
 		validationData = validationFilterer.getData()
 
-	# get whole dataset
+	# Reading result
+	wholeData = trainingData + validationData
+	LOGGER.info("Loaded training%s data from file, total %d samples with %d features"," and validation" if validationData is not None else "",len(wholeData),len(wholeData[0]))
 	wholeDataset = TextDataset(wholeData)
 
 	# check if we have features
