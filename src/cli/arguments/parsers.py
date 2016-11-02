@@ -21,7 +21,7 @@ DEFAULT_PARSER = argparse.ArgumentParser(
 )
 DEFAULT_PARSER.add_argument("-v","--version",
 	action="version",
-	version="Decision-Tree classifier 0.2 (alpha)")
+	version="Decision-Tree classifier 1.0 (beta)")
 # Data related
 DEFAULT_PARSER.add_argument("-d","--dataset",
 	action="store",

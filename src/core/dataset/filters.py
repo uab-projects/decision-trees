@@ -29,9 +29,7 @@ class DatasetFilterer(object):
 	def deleteUnknownSamples(self, unk='?'):
 		LOGGER.debug("Before removing %d",len(self._data))
 		# remove rows with unk char
-		for sample in self._data:
-			if unk in sample:
-				self._data.remove(sample)
+		self._data = list(filter(lambda s: unk not in s, self._data))
 		LOGGER.debug("After removing: %d",len(self._data))
 
 	"""

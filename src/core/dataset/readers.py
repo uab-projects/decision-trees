@@ -118,7 +118,7 @@ class FileDatasetReader(DatasetReader):
 	def _readFile(self, filename):
 		LOGGER.debug("Starting to read %s",filename)
 		data = list(csv.reader(open(filename, 'r'), delimiter=DATASET_COLS_SEP,skipinitialspace=True))
-		#data = [[s.strip() for s in row] for row in data]
+		data = [[s.strip(". 	") for s in row] for row in data]
 		LOGGER.debug("Finished reading %s", filename)
 		return data
 

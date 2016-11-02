@@ -1,4 +1,5 @@
 from .genericdataset import *
+from .validationset import *
 from .constants import *
 import logging
 import numpy as np
@@ -59,15 +60,16 @@ class TextDataset(GenericDataset):
 
 	@return 	generic dataset with the same data and attributes but with the data mapped to numbers
 	"""
-	def getNumericDataset(self, data=None):
+	def getNumericDataset(self, data=None, datasetType = GenericDataset):
 		if data == None:
 			data = self._data
+		samples = len(data)
 		num_data = np.array([
 			np.array([
 			int(data[sample][feature]) if self._continuous[feature] else self._features_map_txt[feature][data[sample][feature]]
 				for feature in range(self._n_features)],dtype=np.uint16)
-					for sample in range(self._n_samples)])
-		return GenericDataset(num_data, self.getFeaturesNumValues(), self._continuous)
+					for sample in range(samples)])
+		return datasetType(num_data, self.getFeaturesNumValues(), self._continuous)
 
 	"""
 	Returns the list of possible values for each feature when using numerical converted dataset
@@ -134,7 +136,12 @@ class TextDataset(GenericDataset):
 		assert feature >= 0 and feature < self._n_features, """cannot retrieve meaning for a feature value: specified feature %d does not exist"""%feature
 		feature_values = self._features_vals[feature]
 		assert value in feature_values, """cannot retrieve meaning of value %s of the feature %s, the feature value does not exist"""%(feature, value)
-		return self._features_mean[feature][1][value] if self._features_mean != None else "Feature %d = %s"%(feature,value)
+		meaning = value
+		try:
+			meaning = self._features_mean[feature][1][value] if self._features_mean != None else "Feature %d = %s"%(feature,value)
+		except KeyError as e:
+			LOGGER.warning("Unable to translate feature %d value %s, mapping does not exist (%s)",feature,value,str(e))
+		return meaning
 
 	"""
 	Given a feature and a numerical value for that feature, returns its meaning

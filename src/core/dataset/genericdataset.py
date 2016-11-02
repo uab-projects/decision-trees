@@ -39,7 +39,7 @@ class GenericDataset(object):
 		if features_vals == None:
 			self._guessFeaturesValues()
 		if continuous is None:
-			self._continuous = np.zeros(self._n_samples,dtype=bool)
+			self._continuous = np.zeros(self._n_features,dtype=bool)
 
 	"""
 	Loops through all samples to learn all the possible values that each feature can have. This calculation is only necessary if no features values have been specified

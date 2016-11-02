@@ -11,6 +11,7 @@ from core.dataset.filters import DatasetFilterer
 from core.dataset.constants import *
 from core.dataset.trainingset import *
 from core.dataset.validationset import *
+#from core.measure.confusionmatrix import ConfusionMatrix
 from core.algorithms.treegrowing import BasicTreeGrowingAlgorithm
 from core.algorithms.ID3 import ID3Algorithm
 from core.algorithms.C45 import C45Algorithm
@@ -71,7 +72,7 @@ def readDataset():
 	LOGGER.info("Loaded data from file, total %d samples with %d features",len(originalData),len(originalData[0]))
 	filterer = DatasetFilterer(originalData)
 	filterer.deleteUnknownSamples()
-
+	#print(filterer.getData())
 	# set original data
 	originalDataset = TextDataset(filterer.getData())
 
@@ -101,12 +102,11 @@ def generateDatasets():
 			sys.exit(1)
 	else:
 		# validation set is defined
-		# Create filter
-		# filterer = DatasetFilterer(datasetReader.getTrainingData())
-		# filterer.deleteUnknownSamples()
-		datasets = [(originalDataset.getNumericDataset(),None)]
-			#originalDataset.getNumericDataset(
-			#datasetReader.getValidationData()))]
+		validationData = datasetReader.getValidationData()
+		filterer = DatasetFilterer(validationData)
+		filterer.deleteUnknownSamples()
+		datasets = [(originalDataset.getNumericDataset(),
+			originalDataset.getNumericDataset(filterer.getData(),ValidationSet))]
 
 """
 Returns the user selected percentage of samples to sent to the training set or either exits the software if invalid, when using holdout splitting method
@@ -205,17 +205,21 @@ if __name__ == "__main__":
 	# Create algorithm
 	algorithm = selectAlgorithm()
 	classifier = selectClassifier()
+	#confusionMatrix = ConfusionMatrix(originalDataset.getFeaturesNumValues()[classifier])
 	# Loop datasets and perform classifications
 	for dataset in datasets:
 		trainingSet, validationSet = dataset[0], dataset[1]
 		tree = algorithm(trainingSet)(classifier)
-		# validationSet = ValidationSet(sets[1],args.classifier)
-		# accuracy = validationSet.validateTree(tree)
+		accuracy = validationSet.validateTree(tree, classifier)
 	# Give general accuracy information
-	# LOGGER.info(general_confusion_matrix)
+	#print(confusionMatrix)
+	LOGGER.info("Tree generated")
+	LOGGER.info("accuracy %s"%accuracy)
 	# Print tree
 	if args.show_tree:
+		LOGGER.info("Attempting to translate the tree for better comprehension")
 		algorithm.translate(tree,classifier, originalDataset)
+		LOGGER.info("Tree translated. Enjoy ;)")
 		for pre, fill, node in RenderTree(tree):
 			print("%s%s" % (pre, node.meaning))
 		if len(datasets) > 1:

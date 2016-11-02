@@ -5,20 +5,21 @@ class C45Algorithm(ID3Algorithm):
 	def _splitCriterion(self, trainingSet, featureSet):
 		#create count-list for every feature remaining in featureSet
 		entropy_general = self._H(self._countTargetClasses(trainingSet))
-		entropy_list = self._entropyOfFeatures(trainingSet, featureSet)
+		featureDatas, featureValues, featureEntropies, featureThresholds = self._calculateFeatures(trainingSet, featureSet)
 
 		#return the attribute with the maximum gain (minimum entropy) if any
-		gain_list = self._gain(entropy_list, entropy_general)
-		split_list = self._splitInfoOfAttributes(trainingSet, featureSet)
+		gain_list = self._gain(featureEntropies, entropy_general)
+		split_list = self._splitInfoOfFeatures(trainingSet, featureSet, featureValues, featureDatas)
 		gain_ratio = C45Algorithm._gainRatio(gain_list, split_list)
-		feature = featureSet[gain_ratio.index(max(gain_ratio))]
+		feature_index = gain_ratio.index(max(gain_ratio))
+		feature = featureSet[feature_index]
 
 		# Create node
 		featureNode = Node(feature)
-		featureNode.featureValues = self._features[feature]
-		featureNode.featureData = self._data[:,feature]
-		featureNode.isContinuous = False
-		featureNode.threshold = None
+		featureNode.featureValues = featureValues[feature_index]
+		featureNode.featureData = featureDatas[feature_index]
+		featureNode.isContinuous = self._continuous[feature]
+		featureNode.threshold = featureThresholds[feature_index]
 		return featureNode
 
 	def _gainRatio(gain_list,split_list):
@@ -29,14 +30,15 @@ class C45Algorithm(ID3Algorithm):
 	Returns the list of entropies of the possible features to classify
 	as the next node of the tree
 	"""
-	def _splitInfoOfAttributes(self, trainingSet, featureSet):
+	def _splitInfoOfFeatures(self, trainingSet, featureSet, featureValues, featureDatas):
 		splitInfo_list = []
 		card_s = np.sum(trainingSet)
-		for feature in featureSet:
+		for feature_index in range(len(featureSet)):
 			#calculate entropy for the next assigment
 			acc = 0.0
-			for value in self._features[feature]:
-				s_v = trainingSet * self._filterByFeatureValue(feature,value,self._data[:,feature])
+			feature = featureSet[feature_index]
+			for value in featureValues[feature_index]:
+				s_v = trainingSet * self._filterByFeatureValue(feature,value,featureDatas[feature_index])
 				card_s_v = np.sum(s_v)
 				x = card_s_v / card_s
 				if x:
