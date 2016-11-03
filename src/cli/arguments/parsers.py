@@ -90,22 +90,22 @@ DEFAULT_PARSER.add_argument("-p","--percent",
 	type=float,
 	default=HOLDOUT_PERCENT_DEFAULT
 )
-DEFAULT_PARSER.add_argument("-k","--cross-validation-k",
-	metavar="groups",
-	action="store",
-	help="""when using cross-validation splitter, sets the k-number of groups to divide the dataset into in order to in each k-iteration, consider the k-group as validation set and the other groups as training sets. When k=number of samples, the cross-validation is switched into leave1out. Value has to be between %d <= k <= number of samples of the dataset. Default is %s"""%(CROSSVALID_K_MIN, CROSSVALID_K),
-	type=int,
-	default=CROSSVALID_K
-)
-DEFAULT_PARSER.add_argument("-r","--random-forest",
-	metavar="true|false",
-	action="store",
-	nargs="?",
-	help="""enables or disables the random forest generation in order to get more accuracy and avoid overfitting (%s by default)"""%("enabled" if RANDOM_FOREST_DEFAULT else "disabled"),
-	type=evalTF,
-	const=True,
-	default=RANDOM_FOREST_DEFAULT
-)
+# DEFAULT_PARSER.add_argument("-k","--cross-validation-k",
+# 	metavar="groups",
+# 	action="store",
+# 	help="""when using cross-validation splitter, sets the k-number of groups to divide the dataset into in order to in each k-iteration, consider the k-group as validation set and the other groups as training sets. When k=number of samples, the cross-validation is switched into leave1out. Value has to be between %d <= k <= number of samples of the dataset. Default is %s"""%(CROSSVALID_K_MIN, CROSSVALID_K),
+# 	type=int,
+# 	default=CROSSVALID_K
+# )
+# DEFAULT_PARSER.add_argument("-r","--random-forest",
+# 	metavar="true|false",
+# 	action="store",
+# 	nargs="?",
+# 	help="""enables or disables the random forest generation in order to get more accuracy and avoid overfitting (%s by default)"""%("enabled" if RANDOM_FOREST_DEFAULT else "disabled"),
+# 	type=evalTF,
+# 	const=True,
+# 	default=RANDOM_FOREST_DEFAULT
+# )
 DEFAULT_PARSER.add_argument("-o","--output",
 	metavar="filename",
 	action="store",
@@ -125,13 +125,13 @@ DEFAULT_PARSER.add_argument("--from-cache",
 	const=True,
 	default=False
 )
-DEFAULT_PARSER.add_argument("-t",
-	action="count",
-	help="""records the algorithm's computation time and shows them. You can
-	add levels of timings by specifying repeating argument. Default timing
-	level is %d"""%TIMERS_DEFAULT,
-	default = TIMERS_DEFAULT
-)
+# DEFAULT_PARSER.add_argument("-t",
+# 	action="count",
+# 	help="""records the algorithm's computation time and shows them. You can
+# 	add levels of timings by specifying repeating argument. Default timing
+# 	level is %d"""%TIMERS_DEFAULT,
+# 	default = TIMERS_DEFAULT
+# )
 DEFAULT_PARSER.add_argument("-l","--log-level",
 	metavar="level",
 	action="store",

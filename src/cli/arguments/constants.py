@@ -51,7 +51,7 @@ ALGORITHM_DEFAULT = ALGORITHMS[1]
 """
 Sets the algorithm to use to split a dataset into a dataset and training set if no training set is available
 """
-SPLITTERS = ["holdout","cross-validation","leave1out","bootstrapping"]
+SPLITTERS = ["holdout"]#,"cross-validation","leave1out","bootstrapping"]
 SPLITTER_DEFAULT = SPLITTERS[0]
 
 """
